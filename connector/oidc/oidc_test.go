@@ -50,7 +50,7 @@ func TestHandleCallback(t *testing.T) {
 		usernameKey               string
 		insecureSkipEmailVerified bool
 		expectUserID              string
-		expectUserName            string
+		expectUsername            string
 		expectName                string
 		token                     map[string]interface{}
 	}{
@@ -59,8 +59,8 @@ func TestHandleCallback(t *testing.T) {
 			userIDKey:      "", // not configured
 			usernameKey:    "", // not configured
 			expectUserID:   "subvalue",
-			expectUserName: "emailvalue",
-			expectName: "namevalue",
+			expectUsername: "emailvalue",
+			expectName:     "namevalue",
 			token: map[string]interface{}{
 				"sub":            "subvalue",
 				"name":           "namevalue",
@@ -72,8 +72,8 @@ func TestHandleCallback(t *testing.T) {
 			name:                      "email_verified not in claims, configured to be skipped",
 			insecureSkipEmailVerified: true,
 			expectUserID:              "subvalue",
-			expectUserName:            "emailvalue",
-			expectName: "namevalue",
+			expectUsername:            "emailvalue",
+			expectName:                "namevalue",
 			token: map[string]interface{}{
 				"sub":   "subvalue",
 				"name":  "namevalue",
@@ -84,8 +84,8 @@ func TestHandleCallback(t *testing.T) {
 			name:           "withUserIDKey",
 			userIDKey:      "name",
 			expectUserID:   "namevalue",
-			expectUserName: "emailvalue",
-			expectName: "namevalue",
+			expectUsername: "emailvalue",
+			expectName:     "namevalue",
 			token: map[string]interface{}{
 				"sub":            "subvalue",
 				"name":           "namevalue",
@@ -94,10 +94,10 @@ func TestHandleCallback(t *testing.T) {
 			},
 		},
 		{
-			name:           "withUserNameKey",
+			name:           "withUsernameKey",
 			usernameKey:    "user_name",
 			expectUserID:   "subvalue",
-			expectUserName: "username",
+			expectUsername: "username",
 			token: map[string]interface{}{
 				"sub":            "subvalue",
 				"user_name":      "username",
@@ -142,7 +142,7 @@ func TestHandleCallback(t *testing.T) {
 			}
 
 			expectEquals(t, identity.UserID, tc.expectUserID)
-			expectEquals(t, identity.Username, tc.expectUserName)
+			expectEquals(t, identity.Username, tc.expectUsername)
 			expectEquals(t, identity.Email, "emailvalue")
 			expectEquals(t, identity.EmailVerified, true)
 		})
@@ -164,7 +164,7 @@ func setupServer(tok map[string]interface{}) (*httptest.Server, error) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/keys", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(&map[string]interface{}{
+		err = json.NewEncoder(w).Encode(&map[string]interface{}{
 			"keys": []map[string]interface{}{{
 				"alg": jwk.Algorithm,
 				"kty": jwk.Algorithm,
@@ -173,6 +173,9 @@ func setupServer(tok map[string]interface{}) (*httptest.Server, error) {
 				"e":   e(&key.PublicKey),
 			}},
 		})
+		if err != nil {
+			panic(err)
+		}
 	})
 
 	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
@@ -186,23 +189,29 @@ func setupServer(tok map[string]interface{}) (*httptest.Server, error) {
 		}
 
 		w.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(&map[string]string{
+		err = json.NewEncoder(w).Encode(&map[string]string{
 			"access_token": token,
 			"id_token":     token,
 			"token_type":   "Bearer",
 		})
+		if err != nil {
+			panic(err)
+		}
 	})
 
 	mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
 		url := fmt.Sprintf("http://%s", r.Host)
 
-		json.NewEncoder(w).Encode(&map[string]string{
+		err = json.NewEncoder(w).Encode(&map[string]string{
 			"issuer":                 url,
 			"token_endpoint":         fmt.Sprintf("%s/token", url),
 			"authorization_endpoint": fmt.Sprintf("%s/authorize", url),
 			"userinfo_endpoint":      fmt.Sprintf("%s/userinfo", url),
 			"jwks_uri":               fmt.Sprintf("%s/keys", url),
 		})
+		if err != nil {
+			panic(err)
+		}
 	})
 
 	return httptest.NewServer(mux), nil
