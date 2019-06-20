@@ -69,7 +69,7 @@ type migration struct {
 var migrations = []migration{
 	{
 		stmt: `
-			create table client (
+			create table auth_client (
 				id text not null primary key,
 				secret text not null,
 				redirect_uris bytea not null, -- JSON array of strings
@@ -122,7 +122,7 @@ var migrations = []migration{
 				expiry timestamptz not null
 			);
 		
-			create table refresh_token (
+			create table auth_refresh_token (
 				id text not null primary key,
 				client_id text not null,
 				scopes bytea not null, -- JSON array of strings
@@ -134,6 +134,9 @@ var migrations = []migration{
 				claims_email_verified boolean not null,
 				claims_groups bytea not null, -- JSON array of strings
 		
+				token text not null,
+				created_at timestamptz not null default current_timestamp,
+				last_used timestamptz not null,
 				connector_id text not null,
 				connector_data bytea
 			);
@@ -146,7 +149,7 @@ var migrations = []migration{
 			);
 		
 			-- keys is a weird table because we only ever expect there to be a single row
-			create table keys (
+			create table auth_keys (
 				id text not null primary key,
 				verification_keys bytea not null, -- JSON array
 				signing_key bytea not null,       -- JSON object
@@ -154,16 +157,6 @@ var migrations = []migration{
 				next_rotation timestamptz not null
 			);
 
-		`,
-	},
-	{
-		stmt: `
-			alter table refresh_token
-				add column token text not null default '';
-			alter table refresh_token
-				add column created_at timestamptz not null default '0001-01-01 00:00:00 UTC';
-			alter table refresh_token
-				add column last_used timestamptz not null default '0001-01-01 00:00:00 UTC';
 		`,
 	},
 	{
@@ -178,7 +171,7 @@ var migrations = []migration{
 	},
 	{
 		stmt: `
-			create table connector (
+			create table auth_connector (
 				id text not null primary key,
 				type text not null,
 				name text not null,

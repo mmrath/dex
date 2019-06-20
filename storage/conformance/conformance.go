@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	jose "gopkg.in/square/go-jose.v2"
+	"gopkg.in/square/go-jose.v2"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -29,7 +29,10 @@ func runTests(t *testing.T, newStorage func() storage.Storage, tests []subTest) 
 		t.Run(test.name, func(t *testing.T) {
 			s := newStorage()
 			test.run(t, s)
-			s.Close()
+			err := s.Close()
+			if err != nil {
+				panic(err)
+			}
 		})
 	}
 }
@@ -249,7 +252,7 @@ func testClientCRUD(t *testing.T, s storage.Storage) {
 	mustBeErrNotFound(t, "client", err)
 
 	if err := s.CreateClient(c1); err != nil {
-		t.Fatalf("create client: %v", err)
+		t.Fatalf("create auth client: %v", err)
 	}
 
 	// Attempt to create same Client twice.

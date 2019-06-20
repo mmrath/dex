@@ -250,7 +250,7 @@ func (c *conn) GetAuthCode(id string) (a storage.AuthCode, err error) {
 
 func (c *conn) CreateRefresh(r storage.RefreshToken) error {
 	_, err := c.Exec(`
-		insert into refresh_token (
+		insert into auth_refresh_token (
 			id, client_id, scopes, nonce,
 			claims_user_id, claims_username, claims_email, claims_email_verified,
 			claims_groups,
@@ -284,7 +284,7 @@ func (c *conn) UpdateRefreshToken(id string, updater func(old storage.RefreshTok
 			return err
 		}
 		_, err = tx.Exec(`
-			update refresh_token
+			update auth_refresh_token
 			set
 				client_id = $1,
 				scopes = $2,
@@ -327,7 +327,7 @@ func getRefresh(q querier, id string) (storage.RefreshToken, error) {
 			claims_groups,
 			connector_id, connector_data,
 			token, created_at, last_used
-		from refresh_token where id = $1;
+		from auth_refresh_token where id = $1;
 	`, id))
 }
 
@@ -339,7 +339,7 @@ func (c *conn) ListRefreshTokens() ([]storage.RefreshToken, error) {
 			claims_groups,
 			connector_id, connector_data,
 			token, created_at, last_used
-		from refresh_token;
+		from auth_refresh_token;
 	`)
 	if err != nil {
 		return nil, fmt.Errorf("query: %v", err)
@@ -396,7 +396,7 @@ func (c *conn) UpdateKeys(updater func(old storage.Keys) (storage.Keys, error)) 
 
 		if firstUpdate {
 			_, err = tx.Exec(`
-				insert into keys (
+				insert into auth_keys (
 					id, verification_keys, signing_key, signing_key_pub, next_rotation
 				)
 				values ($1, $2, $3, $4, $5);
@@ -409,7 +409,7 @@ func (c *conn) UpdateKeys(updater func(old storage.Keys) (storage.Keys, error)) 
 			}
 		} else {
 			_, err = tx.Exec(`
-				update keys
+				update auth_keys
 				set 
 				    verification_keys = $1,
 					signing_key = $2,
@@ -436,7 +436,7 @@ func getKeys(q querier) (keys storage.Keys, err error) {
 	err = q.QueryRow(`
 		select
 			verification_keys, signing_key, signing_key_pub, next_rotation
-		from keys
+		from auth_keys
 		where id=$1
 	`, keysRowID).Scan(
 		decoder(&keys.VerificationKeys), decoder(&keys.SigningKey),
@@ -463,7 +463,7 @@ func (c *conn) UpdateClient(id string, updater func(old storage.Client) (storage
 		}
 
 		_, err = tx.Exec(`
-			update client
+			update auth_client
 			set
 				secret = $1,
 				redirect_uris = $2,
@@ -475,7 +475,7 @@ func (c *conn) UpdateClient(id string, updater func(old storage.Client) (storage
 		`, nc.Secret, encoder(nc.RedirectURIs), encoder(nc.TrustedPeers), nc.Public, nc.Name, nc.LogoURL, id,
 		)
 		if err != nil {
-			return fmt.Errorf("update client: %v", err)
+			return fmt.Errorf("update auth client: %v", err)
 		}
 		return nil
 	})
@@ -483,7 +483,7 @@ func (c *conn) UpdateClient(id string, updater func(old storage.Client) (storage
 
 func (c *conn) CreateClient(cli storage.Client) error {
 	_, err := c.Exec(`
-		insert into client (
+		insert into auth_client (
 			id, secret, redirect_uris, trusted_peers, public, name, logo_url
 		)
 		values ($1, $2, $3, $4, $5, $6, $7);
@@ -504,7 +504,7 @@ func getClient(q querier, id string) (storage.Client, error) {
 	return scanClient(q.QueryRow(`
 		select
 			id, secret, redirect_uris, trusted_peers, public, name, logo_url
-	    from client where id = $1;
+	    from auth_client where id = $1;
 	`, id))
 }
 
@@ -516,7 +516,7 @@ func (c *conn) ListClients() ([]storage.Client, error) {
 	rows, err := c.Query(`
 		select
 			id, secret, redirect_uris, trusted_peers, public, name, logo_url
-		from client;
+		from auth_client;
 	`)
 	if err != nil {
 		return nil, err
@@ -719,7 +719,7 @@ func scanOfflineSessions(s scanner) (o storage.OfflineSessions, err error) {
 
 func (c *conn) CreateConnector(connector storage.Connector) error {
 	_, err := c.Exec(`
-		insert into connector (
+		insert into auth_connector (
 			id, type, name, resource_version, config
 		)
 		values (
@@ -732,7 +732,7 @@ func (c *conn) CreateConnector(connector storage.Connector) error {
 		if c.alreadyExistsCheck(err) {
 			return storage.ErrAlreadyExists
 		}
-		return fmt.Errorf("insert connector: %v", err)
+		return fmt.Errorf("insert auth_connector: %v", err)
 	}
 	return nil
 }
@@ -749,7 +749,7 @@ func (c *conn) UpdateConnector(id string, updater func(s storage.Connector) (sto
 			return err
 		}
 		_, err = tx.Exec(`
-			update connector
+			update auth_connector
 			set 
 			    type = $1,
 			    name = $2,
@@ -760,7 +760,7 @@ func (c *conn) UpdateConnector(id string, updater func(s storage.Connector) (sto
 			newConn.Type, newConn.Name, newConn.ResourceVersion, newConn.Config, connector.ID,
 		)
 		if err != nil {
-			return fmt.Errorf("update connector: %v", err)
+			return fmt.Errorf("update auth_connector: %v", err)
 		}
 		return nil
 	})
@@ -774,7 +774,7 @@ func getConnector(q querier, id string) (storage.Connector, error) {
 	return scanConnector(q.QueryRow(`
 		select
 			id, type, name, resource_version, config
-		from connector
+		from auth_connector
 		where id = $1;
 		`, id))
 }
@@ -796,7 +796,7 @@ func (c *conn) ListConnectors() ([]storage.Connector, error) {
 	rows, err := c.Query(`
 		select
 			id, type, name, resource_version, config
-		from connector;
+		from auth_connector;
 	`)
 	if err != nil {
 		return nil, err
@@ -817,12 +817,12 @@ func (c *conn) ListConnectors() ([]storage.Connector, error) {
 
 func (c *conn) DeleteAuthRequest(id string) error { return c.delete("auth_request", "id", id) }
 func (c *conn) DeleteAuthCode(id string) error    { return c.delete("auth_code", "id", id) }
-func (c *conn) DeleteClient(id string) error      { return c.delete("client", "id", id) }
-func (c *conn) DeleteRefresh(id string) error     { return c.delete("refresh_token", "id", id) }
+func (c *conn) DeleteClient(id string) error      { return c.delete("auth_client", "id", id) }
+func (c *conn) DeleteRefresh(id string) error     { return c.delete("auth_refresh_token", "id", id) }
 func (c *conn) DeletePassword(email string) error {
 	return c.delete("password", "email", strings.ToLower(email))
 }
-func (c *conn) DeleteConnector(id string) error { return c.delete("connector", "id", id) }
+func (c *conn) DeleteConnector(id string) error { return c.delete("auth_connector", "id", id) }
 
 func (c *conn) DeleteOfflineSessions(userID string, connID string) error {
 	result, err := c.Exec(`delete from offline_session where user_id = $1 AND conn_id = $2`, userID, connID)
