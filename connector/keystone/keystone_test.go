@@ -98,13 +98,13 @@ func getAdminToken(t *testing.T, adminName, adminPass string) (token, id string)
 	return token, tokenResp.Token.User.ID
 }
 
-func createUser(t *testing.T, token, userName, userEmail, userPass string) string {
+func createUser(t *testing.T, token, username, userEmail, userPass string) string {
 	t.Helper()
 	client := &http.Client{}
 
 	createUserData := map[string]interface{}{
 		"user": map[string]interface{}{
-			"name":     userName,
+			"name":     username,
 			"email":    userEmail,
 			"enabled":  true,
 			"password": userPass,

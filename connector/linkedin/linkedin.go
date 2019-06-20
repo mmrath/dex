@@ -93,7 +93,7 @@ func (c *linkedInConnector) HandleCallback(s connector.Scopes, r *http.Request) 
 	identity = connector.Identity{
 		UserID:        profile.ID,
 		Name:          profile.fullname(),
-		Username:      profile.fullname(),
+		Username:      profile.Email,
 		Email:         profile.Email,
 		EmailVerified: true,
 	}

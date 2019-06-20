@@ -144,7 +144,7 @@ func (c *gitlabConnector) HandleCallback(s connector.Scopes, r *http.Request) (i
 	identity = connector.Identity{
 		UserID:        strconv.Itoa(user.ID),
 		Name:          username,
-		Username:      username,
+		Username:      user.Email,
 		Email:         user.Email,
 		EmailVerified: true,
 	}

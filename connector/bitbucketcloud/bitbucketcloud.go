@@ -251,7 +251,7 @@ func (b *bitbucketConnector) Refresh(ctx context.Context, s connector.Scopes, id
 	}
 
 	identity.Name = user.Username
-	identity.Username = user.Username
+	identity.Username = user.Email
 	identity.Email = user.Email
 
 	if b.groupsRequired(s.Groups) {
