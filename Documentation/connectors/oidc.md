@@ -75,7 +75,7 @@ connectors:
     
     # The set claim is used as user name.
     # Default: name
-    # userNameKey: nickname
+    # usernameKey: nickname
 ```
 
 [oidc-doc]: openid-connect.md

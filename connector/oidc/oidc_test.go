@@ -47,18 +47,20 @@ func TestHandleCallback(t *testing.T) {
 	tests := []struct {
 		name                      string
 		userIDKey                 string
-		userNameKey               string
+		usernameKey               string
 		insecureSkipEmailVerified bool
 		expectUserID              string
 		expectUserName            string
+		expectName                string
 		token                     map[string]interface{}
 	}{
 		{
 			name:           "simpleCase",
 			userIDKey:      "", // not configured
-			userNameKey:    "", // not configured
+			usernameKey:    "", // not configured
 			expectUserID:   "subvalue",
-			expectUserName: "namevalue",
+			expectUserName: "emailvalue",
+			expectName: "namevalue",
 			token: map[string]interface{}{
 				"sub":            "subvalue",
 				"name":           "namevalue",
@@ -70,7 +72,8 @@ func TestHandleCallback(t *testing.T) {
 			name:                      "email_verified not in claims, configured to be skipped",
 			insecureSkipEmailVerified: true,
 			expectUserID:              "subvalue",
-			expectUserName:            "namevalue",
+			expectUserName:            "emailvalue",
+			expectName: "namevalue",
 			token: map[string]interface{}{
 				"sub":   "subvalue",
 				"name":  "namevalue",
@@ -81,7 +84,8 @@ func TestHandleCallback(t *testing.T) {
 			name:           "withUserIDKey",
 			userIDKey:      "name",
 			expectUserID:   "namevalue",
-			expectUserName: "namevalue",
+			expectUserName: "emailvalue",
+			expectName: "namevalue",
 			token: map[string]interface{}{
 				"sub":            "subvalue",
 				"name":           "namevalue",
@@ -91,7 +95,7 @@ func TestHandleCallback(t *testing.T) {
 		},
 		{
 			name:           "withUserNameKey",
-			userNameKey:    "user_name",
+			usernameKey:    "user_name",
 			expectUserID:   "subvalue",
 			expectUserName: "username",
 			token: map[string]interface{}{
@@ -118,7 +122,7 @@ func TestHandleCallback(t *testing.T) {
 				Scopes:                    []string{"groups"},
 				RedirectURI:               fmt.Sprintf("%s/callback", serverURL),
 				UserIDKey:                 tc.userIDKey,
-				UserNameKey:               tc.userNameKey,
+				UsernameKey:               tc.usernameKey,
 				InsecureSkipEmailVerified: tc.insecureSkipEmailVerified,
 			}
 

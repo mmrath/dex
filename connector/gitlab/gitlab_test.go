@@ -126,7 +126,8 @@ func TestLoginUsedAsIDWhenConfigured(t *testing.T) {
 
 	expectNil(t, err)
 	expectEquals(t, identity.UserID, "12345678")
-	expectEquals(t, identity.Username, "Joe Bloggs")
+	expectEquals(t, identity.Username, "some@email.com")
+	expectEquals(t, identity.Name, "Joe Bloggs")
 }
 
 func TestLoginWithTeamWhitelisted(t *testing.T) {
@@ -154,7 +155,8 @@ func TestLoginWithTeamWhitelisted(t *testing.T) {
 
 	expectNil(t, err)
 	expectEquals(t, identity.UserID, "12345678")
-	expectEquals(t, identity.Username, "Joe Bloggs")
+	expectEquals(t, identity.Username, "some@email.com")
+	expectEquals(t, identity.Name, "Joe Bloggs")
 }
 
 func TestLoginWithTeamNonWhitelisted(t *testing.T) {

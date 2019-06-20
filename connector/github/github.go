@@ -355,11 +355,11 @@ func formatTeamName(org string, team string) string {
 // 	N orgs, M teams per org: user is member of any team from at least 1 org
 // 	N-1 orgs, M teams per org, 1 org with no teams: user is member of any team
 // from at least 1 org, or member of org with no teams
-func (c *githubConnector) groupsForOrgs(ctx context.Context, client *http.Client, userName string) ([]string, error) {
+func (c *githubConnector) groupsForOrgs(ctx context.Context, client *http.Client, username string) ([]string, error) {
 	groups := make([]string, 0)
 	var inOrgNoTeams bool
 	for _, org := range c.orgs {
-		inOrg, err := c.userInOrg(ctx, client, userName, org.Name)
+		inOrg, err := c.userInOrg(ctx, client, username, org.Name)
 		if err != nil {
 			return nil, err
 		}
@@ -377,7 +377,7 @@ func (c *githubConnector) groupsForOrgs(ctx context.Context, client *http.Client
 		if len(org.Teams) == 0 {
 			inOrgNoTeams = true
 		} else if teams = filterTeams(teams, org.Teams); len(teams) == 0 {
-			c.logger.Infof("github: user %q in org %q but no teams", userName, org.Name)
+			c.logger.Infof("github: user %q in org %q but no teams", username, org.Name)
 		}
 
 		for _, teamName := range teams {
@@ -387,7 +387,7 @@ func (c *githubConnector) groupsForOrgs(ctx context.Context, client *http.Client
 	if inOrgNoTeams || len(groups) > 0 {
 		return groups, nil
 	}
-	return groups, fmt.Errorf("github: user %q not in required orgs or teams", userName)
+	return groups, fmt.Errorf("github: user %q not in required orgs or teams", username)
 }
 
 func (c *githubConnector) userGroups(ctx context.Context, client *http.Client) ([]string, error) {
@@ -632,12 +632,12 @@ func (c *githubConnector) userEmail(ctx context.Context, client *http.Client) (s
 //
 // The HTTP passed client is expected to be constructed by the golang.org/x/oauth2 package,
 // which inserts a bearer token as part of the request.
-func (c *githubConnector) userInOrg(ctx context.Context, client *http.Client, userName, orgName string) (bool, error) {
+func (c *githubConnector) userInOrg(ctx context.Context, client *http.Client, username, orgName string) (bool, error) {
 	// requester == user, so GET-ing this endpoint should return 404/302 if user
 	// is not a member
 	//
 	// https://developer.github.com/v3/orgs/members/#check-membership
-	apiURL := fmt.Sprintf("%s/orgs/%s/members/%s", c.apiURL, orgName, userName)
+	apiURL := fmt.Sprintf("%s/orgs/%s/members/%s", c.apiURL, orgName, username)
 
 	req, err := http.NewRequest("GET", apiURL, nil)
 
@@ -654,7 +654,7 @@ func (c *githubConnector) userInOrg(ctx context.Context, client *http.Client, us
 	switch resp.StatusCode {
 	case http.StatusNoContent:
 	case http.StatusFound, http.StatusNotFound:
-		c.logger.Infof("github: user %q not in org %q or application not authorized to read org data", userName, orgName)
+		c.logger.Infof("github: user %q not in org %q or application not authorized to read org data", username, orgName)
 	default:
 		err = fmt.Errorf("github: unexpected return status: %q", resp.Status)
 	}
