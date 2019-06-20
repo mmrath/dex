@@ -49,7 +49,9 @@ type Config struct {
 	UserIDKey string `json:"userIDKey"`
 
 	// Configurable key which contains the user name claim
-	UserNameKey string `json:"userNameKey"`
+	UsernameKey string `json:"usernameKey"`
+
+	DisplayNameKey string `json:"displayNameKey"`
 }
 
 // Domains that don't support basic auth. golang.org/x/oauth2 has an internal
@@ -134,7 +136,7 @@ func (c *Config) Open(id string, logger log.Logger) (conn connector.Connector, e
 		insecureSkipEmailVerified: c.InsecureSkipEmailVerified,
 		getUserInfo:               c.GetUserInfo,
 		userIDKey:                 c.UserIDKey,
-		userNameKey:               c.UserNameKey,
+		usernameKey:               c.UsernameKey,
 	}, nil
 }
 
@@ -155,7 +157,8 @@ type oidcConnector struct {
 	insecureSkipEmailVerified bool
 	getUserInfo               bool
 	userIDKey                 string
-	userNameKey               string
+	usernameKey               string
+	displayNameKey            string
 }
 
 func (c *oidcConnector) Close() error {
@@ -210,21 +213,34 @@ func (c *oidcConnector) HandleCallback(s connector.Scopes, r *http.Request) (ide
 	}
 
 	var claims map[string]interface{}
+
 	if err := idToken.Claims(&claims); err != nil {
 		return identity, fmt.Errorf("oidc: failed to decode claims: %v", err)
 	}
 
-	userNameKey := "name"
-	if c.userNameKey != "" {
-		userNameKey = c.userNameKey
+	displayNameKey := "name"
+	if c.usernameKey != "" {
+		displayNameKey = c.usernameKey
 	}
-	name, found := claims[userNameKey].(string)
+	name, found := claims[displayNameKey].(string)
 	if !found {
-		return identity, fmt.Errorf("missing \"%s\" claim", userNameKey)
+		return identity, fmt.Errorf("missing \"%s\" claim", displayNameKey)
 	}
+
+	usernameKey := "username"
+	if c.usernameKey != "" {
+		usernameKey = c.usernameKey
+	}
+
+
 	email, found := claims["email"].(string)
 	if !found {
 		return identity, errors.New("missing \"email\" claim")
+	}
+
+	username, found := claims[usernameKey].(string)
+	if !found {
+		username = email
 	}
 	emailVerified, found := claims["email_verified"].(bool)
 	if !found {
@@ -262,7 +278,8 @@ func (c *oidcConnector) HandleCallback(s connector.Scopes, r *http.Request) (ide
 
 	identity = connector.Identity{
 		UserID:        idToken.Subject,
-		Username:      name,
+		Name:          name,
+		Username:      username,
 		Email:         email,
 		EmailVerified: emailVerified,
 	}
