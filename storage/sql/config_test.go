@@ -33,11 +33,11 @@ func withTimeout(t time.Duration, f func()) {
 
 func cleanDB(c *conn) error {
 	_, err := c.Exec(`
-		delete from client;
+		delete from auth_client;
 		delete from auth_request;
 		delete from auth_code;
-		delete from refresh_token;
-		delete from keys;
+		delete from auth_refresh_token;
+		delete from auth_keys;
 		delete from password;
 	`)
 	return err

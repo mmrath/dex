@@ -4,7 +4,7 @@
 
 **Note: Changes are not compatible with upstream**
 
-[![Travis](https://api.travis-ci.org/dexidp/dex.svg)](https://travis-ci.org/dexidp/dex)
+[![Travis](https://api.travis-ci.org/mmrath/dex.svg)](https://travis-ci.org/dexidp/dex)
 [![GoDoc](https://godoc.org/github.com/dexidp/dex?status.svg)](https://godoc.org/github.com/dexidp/dex)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dexidp/dex)](https://goreportcard.com/report/github.com/dexidp/dex)
 
