@@ -16,7 +16,7 @@ import (
 	"log"
 	"text/template"
 
-	jose "gopkg.in/square/go-jose.v2"
+	"gopkg.in/square/go-jose.v2"
 )
 
 func newUUID() string {

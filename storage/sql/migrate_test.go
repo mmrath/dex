@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	sqlite3 "github.com/mattn/go-sqlite3"
+	"github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
 )
 
