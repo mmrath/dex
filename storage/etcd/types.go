@@ -3,7 +3,7 @@ package etcd
 import (
 	"time"
 
-	jose "gopkg.in/square/go-jose.v2"
+	"gopkg.in/square/go-jose.v2"
 
 	"github.com/dexidp/dex/storage"
 )

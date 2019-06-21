@@ -232,7 +232,6 @@ func (c *oidcConnector) HandleCallback(s connector.Scopes, r *http.Request) (ide
 		usernameKey = c.usernameKey
 	}
 
-
 	email, found := claims["email"].(string)
 	if !found {
 		return identity, errors.New("missing \"email\" claim")
