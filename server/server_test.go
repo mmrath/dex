@@ -8,6 +8,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/dexidp/dex/storage/memory"
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
@@ -31,7 +32,6 @@ import (
 	"github.com/dexidp/dex/connector"
 	"github.com/dexidp/dex/connector/mock"
 	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/memory"
 )
 
 func mustLoad(s string) *rsa.PrivateKey {
