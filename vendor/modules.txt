@@ -2,15 +2,6 @@
 github.com/beevik/etree
 # github.com/beorn7/perks v0.0.0-20160229213445-3ac7bf7a47d1
 github.com/beorn7/perks/quantile
-# github.com/coreos/etcd v3.2.9+incompatible
-github.com/coreos/etcd/clientv3
-github.com/coreos/etcd/clientv3/namespace
-github.com/coreos/etcd/pkg/transport
-github.com/coreos/etcd/auth/authpb
-github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes
-github.com/coreos/etcd/etcdserver/etcdserverpb
-github.com/coreos/etcd/mvcc/mvccpb
-github.com/coreos/etcd/pkg/tlsutil
 # github.com/coreos/go-oidc v0.0.0-20170307191026-be73733bb8cc
 github.com/coreos/go-oidc
 # github.com/felixge/httpsnoop v1.0.0
@@ -33,8 +24,6 @@ github.com/gorilla/handlers
 github.com/gorilla/mux
 # github.com/grpc-ecosystem/go-grpc-prometheus v0.0.0-20170826090648-0dafe0d496ea
 github.com/grpc-ecosystem/go-grpc-prometheus
-# github.com/gtank/cryptopasta v0.0.0-20160720052843-e7e23673cac3
-github.com/gtank/cryptopasta
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
 # github.com/jonboulle/clockwork v0.0.0-20160907122059-bcac9884e750
