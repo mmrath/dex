@@ -3,7 +3,7 @@ module github.com/dexidp/dex
 require (
 	github.com/beevik/etree v0.0.0-20161216042344-4cd0dd976db8
 	github.com/beorn7/perks v0.0.0-20160229213445-3ac7bf7a47d1 // indirect
-	github.com/coreos/go-oidc v0.0.0-20170307191026-be73733bb8cc
+	github.com/coreos/go-oidc v2.0.0+incompatible
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/felixge/httpsnoop v1.0.0
 	github.com/ghodss/yaml v0.0.0-20161020005002-bea76d6a4713

@@ -2,7 +2,7 @@
 github.com/beevik/etree
 # github.com/beorn7/perks v0.0.0-20160229213445-3ac7bf7a47d1
 github.com/beorn7/perks/quantile
-# github.com/coreos/go-oidc v0.0.0-20170307191026-be73733bb8cc
+# github.com/coreos/go-oidc v2.0.0+incompatible
 github.com/coreos/go-oidc
 # github.com/felixge/httpsnoop v1.0.0
 github.com/felixge/httpsnoop
