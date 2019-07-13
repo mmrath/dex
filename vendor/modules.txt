@@ -10,12 +10,23 @@ github.com/davecgh/go-spew/spew
 github.com/felixge/httpsnoop
 # github.com/ghodss/yaml v0.0.0-20161020005002-bea76d6a4713
 github.com/ghodss/yaml
-# github.com/golang/protobuf v0.0.0-20171113180720-1e59b77b52bf
+# github.com/go-pg/pg v8.0.4+incompatible
+github.com/go-pg/pg
+github.com/go-pg/pg/internal
+github.com/go-pg/pg/internal/pool
+github.com/go-pg/pg/orm
+github.com/go-pg/pg/types
+github.com/go-pg/pg/internal/iszero
+github.com/go-pg/pg/internal/parser
+github.com/go-pg/pg/internal/struct_filter
+github.com/go-pg/pg/internal/tag
+# github.com/golang/protobuf v1.2.0
 github.com/golang/protobuf/protoc-gen-go
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/protoc-gen-go/generator
 github.com/golang/protobuf/protoc-gen-go/grpc
 github.com/golang/protobuf/protoc-gen-go/descriptor
+github.com/golang/protobuf/protoc-gen-go/generator/internal/remap
 github.com/golang/protobuf/protoc-gen-go/plugin
 github.com/golang/protobuf/ptypes/any
 # github.com/gorilla/context v0.0.0-20160525203319-aed02d124ae4
@@ -28,6 +39,8 @@ github.com/gorilla/mux
 github.com/grpc-ecosystem/go-grpc-prometheus
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
+# github.com/jinzhu/inflection v1.0.0
+github.com/jinzhu/inflection
 # github.com/jonboulle/clockwork v0.0.0-20160907122059-bcac9884e750
 github.com/jonboulle/clockwork
 # github.com/kylelemons/godebug v0.0.0-20160406211939-eadb3ce320cb
@@ -69,7 +82,7 @@ github.com/spf13/cobra
 github.com/spf13/pflag
 # github.com/stretchr/testify v1.2.2
 github.com/stretchr/testify/assert
-# golang.org/x/crypto v0.0.0-20160711182412-2c99acdd1e9b
+# golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/ed25519
@@ -78,26 +91,26 @@ golang.org/x/crypto/ed25519/internal/edwards25519
 # golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3
 golang.org/x/lint/golint
 golang.org/x/lint
-# golang.org/x/net v0.0.0-20170413175226-5602c733f70a
+# golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
 golang.org/x/net/context
 golang.org/x/net/http2
 golang.org/x/net/trace
+golang.org/x/net/http/httpguts
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
-golang.org/x/net/lex/httplex
 golang.org/x/net/internal/timeseries
 # golang.org/x/oauth2 v0.0.0-20160718223228-08c8d727d239
 golang.org/x/oauth2
 golang.org/x/oauth2/bitbucket
 golang.org/x/oauth2/github
 golang.org/x/oauth2/internal
-# golang.org/x/sys v0.0.0-20151211033651-833a04a10549
+# golang.org/x/sys v0.0.0-20180909124046-d0be0721c37e
 golang.org/x/sys/unix
-# golang.org/x/text v0.0.0-20170401064109-f4b4367115ec
+# golang.org/x/text v0.3.0
 golang.org/x/text/secure/bidirule
+golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 golang.org/x/text/transform
-golang.org/x/text/unicode/bidi
 # golang.org/x/tools v0.0.0-20181201035826-d0ca3933b724
 golang.org/x/tools/go/ast/astutil
 golang.org/x/tools/go/gcexportdata
@@ -134,5 +147,7 @@ gopkg.in/ldap.v2
 gopkg.in/square/go-jose.v2
 gopkg.in/square/go-jose.v2/cipher
 gopkg.in/square/go-jose.v2/json
-# gopkg.in/yaml.v2 v2.0.0-20160301204022-a83829b6f129
+# gopkg.in/yaml.v2 v2.2.1
 gopkg.in/yaml.v2
+# mellium.im/sasl v0.2.1
+mellium.im/sasl

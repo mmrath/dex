@@ -11,8 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dexidp/dex/pkg/log"
-
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/bitbucket"
 
