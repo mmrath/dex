@@ -17,6 +17,8 @@ import (
 	"golang.org/x/oauth2/bitbucket"
 
 	"github.com/dexidp/dex/connector"
+	"github.com/dexidp/dex/pkg/groups"
+	"github.com/dexidp/dex/pkg/log"
 )
 
 const (
@@ -353,7 +355,7 @@ func (b *bitbucketConnector) getGroups(ctx context.Context, client *http.Client,
 	}
 
 	if len(b.teams) > 0 {
-		filteredTeams := filterTeams(bitbucketTeams, b.teams)
+		filteredTeams := groups.Filter(bitbucketTeams, b.teams)
 		if len(filteredTeams) == 0 {
 			return nil, fmt.Errorf("bitbucket: user %q is not in any of the required teams", userLogin)
 		}
@@ -363,21 +365,6 @@ func (b *bitbucketConnector) getGroups(ctx context.Context, client *http.Client,
 	}
 
 	return nil, nil
-}
-
-// Filter the users' team memberships by 'teams' from config.
-func filterTeams(userTeams, configTeams []string) []string {
-	teams := []string{}
-	teamFilter := make(map[string]struct{})
-	for _, team := range configTeams {
-		teamFilter[team] = struct{}{}
-	}
-	for _, team := range userTeams {
-		if _, ok := teamFilter[team]; ok {
-			teams = append(teams, team)
-		}
-	}
-	return teams
 }
 
 type team struct {
