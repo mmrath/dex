@@ -1,52 +1,66 @@
 module github.com/dexidp/dex
 
 require (
-	github.com/beevik/etree v0.0.0-20161216042344-4cd0dd976db8
-	github.com/beorn7/perks v0.0.0-20160229213445-3ac7bf7a47d1 // indirect
+	cloud.google.com/go v0.41.0 // indirect
+	github.com/beevik/etree v1.1.0
+	github.com/coreos/bbolt v1.3.3 // indirect
+	github.com/coreos/etcd v3.3.13+incompatible // indirect
 	github.com/coreos/go-oidc v2.0.0+incompatible
-	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/coreos/go-semver v0.3.0 // indirect
+	github.com/coreos/go-systemd v0.0.0-20190620071333-e64a0ec8b42a // indirect
 	github.com/felixge/httpsnoop v1.0.0
-	github.com/ghodss/yaml v0.0.0-20161020005002-bea76d6a4713
+	github.com/ghodss/yaml v1.0.0
+	github.com/go-kit/kit v0.9.0 // indirect
 	github.com/go-pg/pg v8.0.4+incompatible
-	github.com/golang/protobuf v1.2.0
-	github.com/gorilla/context v0.0.0-20160525203319-aed02d124ae4 // indirect
-	github.com/gorilla/handlers v0.0.0-20161206055144-3a5767ca75ec
-	github.com/gorilla/mux v0.0.0-20160605233521-9fa818a44c2b
-	github.com/grpc-ecosystem/go-grpc-prometheus v0.0.0-20170826090648-0dafe0d496ea
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6 // indirect
+	github.com/golang/protobuf v1.3.2
+	github.com/gorilla/context v1.1.1 // indirect
+	github.com/gorilla/handlers v1.4.1
+	github.com/gorilla/mux v1.7.3
+	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
+	github.com/grpc-ecosystem/grpc-gateway v1.9.4 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jonboulle/clockwork v0.0.0-20160907122059-bcac9884e750 // indirect
-	github.com/kr/pretty v0.1.0 // indirect
-	github.com/kylelemons/godebug v0.0.0-20160406211939-eadb3ce320cb
-	github.com/lib/pq v0.0.0-20181016162627-9eb73efc1fcc
-	github.com/mattn/go-sqlite3 v0.0.0-20160907162043-3fb7a0e792ed
-	github.com/matttproud/golang_protobuf_extensions v0.0.0-20150406173934-fc2b8d3a73c4 // indirect
+	github.com/kisielk/errcheck v1.2.0 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/kr/pty v1.1.8 // indirect
+	github.com/kylelemons/godebug v1.1.0
+	github.com/lib/pq v1.1.1
+	github.com/magiconair/properties v1.8.1 // indirect
+	github.com/mattn/go-sqlite3 v1.10.0
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/pquerna/cachecontrol v0.0.0-20160421231612-c97913dcbd76 // indirect
-	github.com/prometheus/client_golang v0.9.0-pre1
-	github.com/prometheus/client_model v0.0.0-20150212101744-fa8ad6fec335 // indirect
-	github.com/prometheus/common v0.0.0-20170220103846-49fee292b27b // indirect
-	github.com/prometheus/procfs v0.0.0-20170216223256-a1dba9ce8bae // indirect
-	github.com/russellhaering/goxmldsig v0.0.0-20170324122954-eaac44c63fe0
+	github.com/pelletier/go-toml v1.4.0 // indirect
+	github.com/pkg/errors v0.8.1 // indirect
+	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
+	github.com/prometheus/client_golang v1.0.0
+	github.com/prometheus/common v0.6.0 // indirect
+	github.com/prometheus/procfs v0.0.3 // indirect
+	github.com/rogpeppe/fastuuid v1.2.0 // indirect
+	github.com/russellhaering/goxmldsig v0.0.0-20180430223755-7acd5e4a6ef7
+	github.com/russross/blackfriday v2.0.0+incompatible // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/sirupsen/logrus v0.0.0-20170713114250-a3f95b5c4235
-	github.com/spf13/cobra v0.0.0-20160615143614-bc81c21bd0d8
-	github.com/spf13/pflag v0.0.0-20160610190902-367864438f1b // indirect
-	github.com/stretchr/testify v1.2.2
-	golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
-	golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3
-	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
-	golang.org/x/oauth2 v0.0.0-20160718223228-08c8d727d239
-	golang.org/x/sync v0.0.0-20181108010431-42b317875d0f // indirect
-	golang.org/x/tools v0.0.0-20181201035826-d0ca3933b724 // indirect
-	google.golang.org/appengine v0.0.0-20160621060416-267c27e74922 // indirect
-	google.golang.org/genproto v0.0.0-20170404132009-411e09b969b1 // indirect
-	google.golang.org/grpc v0.0.0-20170413033559-0e8b58d22f34
-	gopkg.in/asn1-ber.v1 v1.0.0-20150924051756-4e86f4367175 // indirect
-	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	github.com/sirupsen/logrus v1.4.2
+	github.com/spf13/afero v1.2.2 // indirect
+	github.com/spf13/cobra v0.0.5
+	github.com/spf13/jwalterweatherman v1.1.0 // indirect
+	github.com/spf13/viper v1.4.0 // indirect
+	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/stretchr/testify v1.3.0
+	github.com/ugorji/go v1.1.7 // indirect
+	go.etcd.io/bbolt v1.3.3 // indirect
+	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
+	golang.org/x/exp v0.0.0-20190627132806-fd42eb6b336f // indirect
+	golang.org/x/image v0.0.0-20190703141733-d6a02ce849c9 // indirect
+	golang.org/x/lint v0.0.0-20190409202823-959b441ac422
+	golang.org/x/mobile v0.0.0-20190711165009-e47acb2ca7f9 // indirect
+	golang.org/x/net v0.0.0-20190628185345-da137c7871d7
+	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
+	golang.org/x/sys v0.0.0-20190712062909-fae7ac547cb7 // indirect
+	golang.org/x/tools v0.0.0-20190712213246-8b927904ee0d // indirect
+	google.golang.org/genproto v0.0.0-20190708153700-3bdd9d9f5532 // indirect
+	google.golang.org/grpc v1.22.0
+	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/ldap.v2 v2.5.1
-	gopkg.in/square/go-jose.v2 v2.1.8
+	gopkg.in/square/go-jose.v2 v2.3.1
 	mellium.im/sasl v0.2.1 // indirect
 )
