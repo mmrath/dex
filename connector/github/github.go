@@ -378,7 +378,7 @@ func (c *githubConnector) groupsForOrgs(ctx context.Context, client *http.Client
 		if len(org.Teams) == 0 {
 			inOrgNoTeams = true
 		} else if teams = groups_pkg.Filter(teams, org.Teams); len(teams) == 0 {
-			c.logger.Infof("github: user %q in org %q but no teams", userName, org.Name)
+			c.logger.Infof("github: user %q in org %q but no teams", username, org.Name)
 		}
 
 		for _, teamName := range teams {
