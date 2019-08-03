@@ -38,8 +38,10 @@ func (c *conn) migrate() (int, error) {
 
 			migrationNum := n + 1
 			m := migrations[n]
-			if _, err := tx.Exec(m.stmt); err != nil {
-				return fmt.Errorf("migration %d failed: %v", migrationNum, err)
+			for i := range m.stmts {
+				if _, err := tx.Exec(m.stmts[i]); err != nil {
+					return fmt.Errorf("migration %d statement %d failed: %v", migrationNum, i+1, err)
+				}
 			}
 
 			q := `insert into migrations (num, at) values ($1, now());`
@@ -61,15 +63,15 @@ func (c *conn) migrate() (int, error) {
 }
 
 type migration struct {
-	stmt string
+	stmts []string
 	// TODO(ericchiang): consider adding additional fields like "forDrivers"
 }
 
 // All SQL flavors share migration strategies.
 var migrations = []migration{
 	{
-		stmt: `
-			create table auth_client (
+		stmts: []string{`
+			create table client (
 				id text not null primary key,
 				secret text not null,
 				redirect_uris bytea not null, -- JSON array of strings
@@ -77,8 +79,8 @@ var migrations = []migration{
 				public boolean not null,
 				name text not null,
 				logo_url text not null
-			);
-		
+			);`,
+			`
 			create table auth_request (
 				id text not null primary key,
 				client_id text not null,
@@ -101,8 +103,8 @@ var migrations = []migration{
 				connector_data bytea,
 		
 				expiry timestamptz not null
-			);
-		
+			);`,
+			`
 			create table auth_code (
 				id text not null primary key,
 				client_id text not null,
@@ -120,9 +122,9 @@ var migrations = []migration{
 				connector_data bytea,
 		
 				expiry timestamptz not null
-			);
-		
-			create table auth_refresh_token (
+			);`,
+			`
+			create table refresh_token (
 				id text not null primary key,
 				client_id text not null,
 				scopes bytea not null, -- JSON array of strings
@@ -134,50 +136,58 @@ var migrations = []migration{
 				claims_email_verified boolean not null,
 				claims_groups bytea not null, -- JSON array of strings
 		
-				token text not null,
-				created_at timestamptz not null default current_timestamp,
-				last_used timestamptz not null,
 				connector_id text not null,
 				connector_data bytea
-			);
-
+			);`,
+			`
 			create table password (
 				email text not null primary key,
 				hash bytea not null,
 				username text not null,
 				user_id text not null
-			);
-		
+			);`,
+			`
 			-- keys is a weird table because we only ever expect there to be a single row
-			create table auth_keys (
+			create table keys (
 				id text not null primary key,
 				verification_keys bytea not null, -- JSON array
 				signing_key bytea not null,       -- JSON object
 				signing_key_pub bytea not null,   -- JSON object
 				next_rotation timestamptz not null
-			);
-
-		`,
+			);`,
+		},
 	},
 	{
-		stmt: `
+		stmts: []string{`
+			alter table refresh_token
+				add column token text not null default '';`,
+			`
+			alter table refresh_token
+				add column created_at timestamptz not null default '0001-01-01 00:00:00 UTC';`,
+			`
+			alter table refresh_token
+				add column last_used timestamptz not null default '0001-01-01 00:00:00 UTC';`,
+		},
+	},
+	{
+		stmts: []string{`
 			create table offline_session (
 				user_id text not null,
 				conn_id text not null,
 				refresh bytea not null,
 				PRIMARY KEY (user_id, conn_id)
-			);
-		`,
+			);`,
+		},
 	},
 	{
-		stmt: `
-			create table auth_connector (
+		stmts: []string{`
+			create table connector (
 				id text not null primary key,
 				type text not null,
 				name text not null,
 				resource_version text not null,
 				config bytea
-			);
-		`,
+			);`,
+		},
 	},
 }

@@ -104,7 +104,7 @@ func TestUsernameIncludedInFederatedIdentity(t *testing.T) {
 func TestLoginUsedAsIDWhenConfigured(t *testing.T) {
 
 	s := newTestServer(map[string]interface{}{
-		"/api/v4/user": gitlabUser{Email: "some@email.com", ID: 12345678, Name: "Joe Bloggs"},
+		"/api/v4/user": gitlabUser{Email: "some@email.com", ID: 12345678, Name: "Joe Bloggs", Username: "joebloggs"},
 		"/oauth/token": map[string]interface{}{
 			"access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9",
 			"expires_in":   "30",
@@ -121,13 +121,12 @@ func TestLoginUsedAsIDWhenConfigured(t *testing.T) {
 	req, err := http.NewRequest("GET", hostURL.String(), nil)
 	expectNil(t, err)
 
-	c := gitlabConnector{baseURL: s.URL, httpClient: newClient()}
+	c := gitlabConnector{baseURL: s.URL, httpClient: newClient(), useLoginAsID: true}
 	identity, err := c.HandleCallback(connector.Scopes{Groups: true}, req)
 
 	expectNil(t, err)
-	expectEquals(t, identity.UserID, "12345678")
-	expectEquals(t, identity.Username, "some@email.com")
-	expectEquals(t, identity.Name, "Joe Bloggs")
+	expectEquals(t, identity.UserID, "joebloggs")
+	expectEquals(t, identity.Username, "Joe Bloggs")
 }
 
 func TestLoginWithTeamWhitelisted(t *testing.T) {
@@ -155,8 +154,7 @@ func TestLoginWithTeamWhitelisted(t *testing.T) {
 
 	expectNil(t, err)
 	expectEquals(t, identity.UserID, "12345678")
-	expectEquals(t, identity.Username, "some@email.com")
-	expectEquals(t, identity.Name, "Joe Bloggs")
+	expectEquals(t, identity.Username, "Joe Bloggs")
 }
 
 func TestLoginWithTeamNonWhitelisted(t *testing.T) {
@@ -187,13 +185,11 @@ func TestLoginWithTeamNonWhitelisted(t *testing.T) {
 }
 
 func newTestServer(responses map[string]interface{}) *httptest.Server {
-	var s *httptest.Server
-	s = httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		response := responses[r.RequestURI]
 		w.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 	}))
-	return s
 }
 
 func newClient() *http.Client {
