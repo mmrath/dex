@@ -150,7 +150,7 @@ type githubConnector struct {
 	teamNameField string
 	// if set to true and no orgs are configured then connector loads all user claims (all orgs and team)
 	loadAllGroups bool
-	// if set to true will use the users handle rather than their numeric id as the ID
+	// if set to true will use the user's handle rather than their numeric id as the ID
 	useLoginAsID bool
 }
 
@@ -444,7 +444,7 @@ func (c *githubConnector) userOrgs(ctx context.Context, client *http.Client) ([]
 // userOrgTeams retrieves teams which current user belongs to.
 // Method returns a map where key is an org name and value list of teams under the org.
 func (c *githubConnector) userOrgTeams(ctx context.Context, client *http.Client) (map[string][]string, error) {
-	groups := make(map[string][]string, 0)
+	groups := make(map[string][]string)
 	apiURL := c.apiURL + "/user/teams"
 	for {
 		// https://developer.github.com/v3/orgs/teams/#list-user-teams
