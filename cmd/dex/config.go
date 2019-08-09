@@ -127,6 +127,8 @@ type OAuth2 struct {
 	// If specified, do not prompt the user to approve client authorization. The
 	// act of logging in implies authorization.
 	SkipApprovalScreen bool `json:"skipApprovalScreen"`
+	// If specified, show the connector selection screen even if there's only one
+	AlwaysShowLoginScreen bool `json:"alwaysShowLoginScreen"`
 }
 
 // Web is the config format for the HTTP server.
@@ -150,6 +152,7 @@ type GRPC struct {
 	TLSCert     string `json:"tlsCert"`
 	TLSKey      string `json:"tlsKey"`
 	TLSClientCA string `json:"tlsClientCA"`
+	Reflection  bool   `json:"reflection"`
 }
 
 // Storage holds app's storage configuration.
