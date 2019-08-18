@@ -2,16 +2,6 @@
 github.com/beevik/etree
 # github.com/beorn7/perks v1.0.0
 github.com/beorn7/perks/quantile
-# github.com/coreos/etcd v3.3.13+incompatible
-github.com/coreos/etcd/clientv3
-github.com/coreos/etcd/clientv3/namespace
-github.com/coreos/etcd/pkg/transport
-github.com/coreos/etcd/auth/authpb
-github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes
-github.com/coreos/etcd/etcdserver/etcdserverpb
-github.com/coreos/etcd/mvcc/mvccpb
-github.com/coreos/etcd/pkg/types
-github.com/coreos/etcd/pkg/tlsutil
 # github.com/coreos/go-oidc v2.0.0+incompatible
 github.com/coreos/go-oidc
 # github.com/davecgh/go-spew v1.1.1
@@ -20,12 +10,18 @@ github.com/davecgh/go-spew/spew
 github.com/felixge/httpsnoop
 # github.com/ghodss/yaml v1.0.0
 github.com/ghodss/yaml
+# github.com/go-pg/pg v8.0.5+incompatible
+github.com/go-pg/pg
+github.com/go-pg/pg/internal
+github.com/go-pg/pg/internal/pool
+github.com/go-pg/pg/orm
+github.com/go-pg/pg/types
+github.com/go-pg/pg/internal/iszero
+github.com/go-pg/pg/internal/parser
+github.com/go-pg/pg/internal/struct_filter
+github.com/go-pg/pg/internal/tag
 # github.com/go-sql-driver/mysql v1.4.1
 github.com/go-sql-driver/mysql
-# github.com/gogo/protobuf v1.2.1
-github.com/gogo/protobuf/gogoproto
-github.com/gogo/protobuf/proto
-github.com/gogo/protobuf/protoc-gen-gogo/descriptor
 # github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/protoc-gen-go
 github.com/golang/protobuf/proto
@@ -48,6 +44,8 @@ github.com/grpc-ecosystem/go-grpc-prometheus
 github.com/gtank/cryptopasta
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
+# github.com/jinzhu/inflection v1.0.0
+github.com/jinzhu/inflection
 # github.com/jonboulle/clockwork v0.1.0
 github.com/jonboulle/clockwork
 # github.com/konsorten/go-windows-terminal-sequences v1.0.2
@@ -102,7 +100,7 @@ golang.org/x/crypto/ed25519/internal/edwards25519
 # golang.org/x/lint v0.0.0-20190409202823-959b441ac422
 golang.org/x/lint/golint
 golang.org/x/lint
-# golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
+# golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7
 golang.org/x/net/context
 golang.org/x/net/http2
 golang.org/x/net/trace
@@ -116,7 +114,7 @@ golang.org/x/oauth2
 golang.org/x/oauth2/bitbucket
 golang.org/x/oauth2/github
 golang.org/x/oauth2/internal
-# golang.org/x/sys v0.0.0-20190730183949-1393eb018365
+# golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a
 golang.org/x/sys/windows
 golang.org/x/sys/unix
 # golang.org/x/text v0.3.2
@@ -124,7 +122,7 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 golang.org/x/text/transform
-# golang.org/x/tools v0.0.0-20190730215328-ed3277de2799
+# golang.org/x/tools v0.0.0-20190813214729-9dba7caff850
 golang.org/x/tools/go/ast/astutil
 golang.org/x/tools/go/gcexportdata
 golang.org/x/tools/go/internal/gcimporter
@@ -137,9 +135,9 @@ google.golang.org/appengine/internal/base
 google.golang.org/appengine/internal/datastore
 google.golang.org/appengine/internal/log
 google.golang.org/appengine/internal/remote_api
-# google.golang.org/genproto v0.0.0-20190716160619-c506a9f90610
+# google.golang.org/genproto v0.0.0-20190801165951-fa694d86fc64
 google.golang.org/genproto/googleapis/rpc/status
-# google.golang.org/grpc v1.22.1
+# google.golang.org/grpc v1.23.0
 google.golang.org/grpc
 google.golang.org/grpc/codes
 google.golang.org/grpc/status
@@ -172,7 +170,6 @@ google.golang.org/grpc/stats
 google.golang.org/grpc/tap
 google.golang.org/grpc/credentials/internal
 google.golang.org/grpc/reflection/grpc_reflection_v1alpha
-google.golang.org/grpc/health/grpc_health_v1
 google.golang.org/grpc/balancer/base
 google.golang.org/grpc/binarylog/grpc_binarylog_v1
 google.golang.org/grpc/internal/syscall
@@ -186,3 +183,5 @@ gopkg.in/square/go-jose.v2/cipher
 gopkg.in/square/go-jose.v2/json
 # gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2
+# mellium.im/sasl v0.2.1
+mellium.im/sasl
