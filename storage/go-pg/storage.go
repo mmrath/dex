@@ -1,3 +1,5 @@
+// +build pg
+
 package go_pg
 
 import (
