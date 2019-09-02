@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	jose "gopkg.in/square/go-jose.v2"
+	"gopkg.in/square/go-jose.v2"
 )
 
 var (
@@ -112,27 +112,29 @@ type Storage interface {
 //   * Trusted peers: https://developers.google.com/identity/protocols/CrossClientAuth
 //   * Public clients: https://developers.google.com/api-client-library/python/auth/installed-app
 type Client struct {
+	tableName struct{} `sql:"auth_client"`
+
 	// Client ID and secret used to identify the client.
-	ID     string `json:"id" yaml:"id"`
-	Secret string `json:"secret" yaml:"secret"`
+	ID     string `json:"id" yaml:"id" sql:"id"`
+	Secret string `json:"secret" yaml:"secret" sql:"secret"`
 
 	// A registered set of redirect URIs. When redirecting from dex to the client, the URI
 	// requested to redirect to MUST match one of these values, unless the client is "public".
-	RedirectURIs []string `json:"redirectURIs" yaml:"redirectURIs"`
+	RedirectURIs []string `json:"redirectURIs" yaml:"redirectURIs" sql:"redirect_uris,array"`
 
 	// TrustedPeers are a list of peers which can issue tokens on this client's behalf using
 	// the dynamic "oauth2:server:client_id:(client_id)" scope. If a peer makes such a request,
 	// this client's ID will appear as the ID Token's audience.
 	//
 	// Clients inherently trust themselves.
-	TrustedPeers []string `json:"trustedPeers" yaml:"trustedPeers"`
+	TrustedPeers []string `json:"trustedPeers" yaml:"trustedPeers" sql:"trusted_peers,array"`
 
 	// Public clients must use either use a redirectURL 127.0.0.1:X or "urn:ietf:wg:oauth:2.0:oob"
-	Public bool `json:"public" yaml:"public"`
+	Public bool `json:"public" yaml:"public" sql:"public"`
 
 	// Name and LogoURL used when displaying this client to the end user.
-	Name    string `json:"name" yaml:"name"`
-	LogoURL string `json:"logoURL" yaml:"logoURL"`
+	Name    string `json:"name" yaml:"name" sql:"name"`
+	LogoURL string `json:"logoURL" yaml:"logoURL" sql:"logo_url"`
 }
 
 // Claims represents the ID Token claims supported by the server.
@@ -148,40 +150,42 @@ type Claims struct {
 // AuthRequest represents a OAuth2 client authorization request. It holds the state
 // of a single auth flow up to the point that the user authorizes the client.
 type AuthRequest struct {
+	tableName struct{} `sql:"auth_request"`
+
 	// ID used to identify the authorization request.
-	ID string
+	ID string `sql:"id"`
 
 	// ID of the client requesting authorization from a user.
-	ClientID string
+	ClientID string `sql:"client_id"`
 
 	// Values parsed from the initial request. These describe the resources the client is
 	// requesting as well as values describing the form of the response.
-	ResponseTypes []string
-	Scopes        []string
-	RedirectURI   string
-	Nonce         string
-	State         string
+	ResponseTypes []string `sql:"response_types,array"`
+	Scopes        []string `sql:"scopes,array"`
+	RedirectURI   string   `sql:"redirect_uri"`
+	Nonce         string   `sql:"nonce"`
+	State         string   `sql:"state"`
 
 	// The client has indicated that the end user must be shown an approval prompt
 	// on all requests. The server cannot cache their initial action for subsequent
 	// attempts.
-	ForceApprovalPrompt bool
+	ForceApprovalPrompt bool `sql:"force_approval_prompt"`
 
-	Expiry time.Time
+	Expiry time.Time `sql:"expiry"`
 
 	// Has the user proved their identity through a backing identity provider?
 	//
 	// If false, the following fields are invalid.
-	LoggedIn bool
+	LoggedIn bool `sql:"logged_in"`
 
 	// The identity of the end user. Generally nil until the user authenticates
 	// with a backend.
-	Claims Claims
+	Claims Claims `sql:"claims"`
 
 	// The connector used to login the user and any data the connector wishes to persists.
 	// Set when the user authenticates.
-	ConnectorID   string
-	ConnectorData []byte
+	ConnectorID   string `sql:"connector_id"`
+	ConnectorData []byte `sql:"connector_data"`
 }
 
 // AuthCode represents a code which can be exchanged for an OAuth2 token response.
@@ -190,64 +194,67 @@ type AuthRequest struct {
 // redirect the end user back to the client, but the client hasn't exchanged the
 // code for an access_token and id_token.
 type AuthCode struct {
+	tableName struct{} `sql:"auth_code"`
 	// Actual string returned as the "code" value.
-	ID string
+	ID string `sql:"id"`
 
 	// The client this code value is valid for. When exchanging the code for a
 	// token response, the client must use its client_secret to authenticate.
-	ClientID string
+	ClientID string `sql:"client_id"`
 
 	// As part of the OAuth2 spec when a client makes a token request it MUST
 	// present the same redirect_uri as the initial redirect. This values is saved
 	// to make this check.
 	//
 	// https://tools.ietf.org/html/rfc6749#section-4.1.3
-	RedirectURI string
+	RedirectURI string `sql:"redirect_uri"`
 
 	// If provided by the client in the initial request, the provider MUST create
 	// a ID Token with this nonce in the JWT payload.
-	Nonce string
+	Nonce string `sql:"nonce"`
 
 	// Scopes authorized by the end user for the client.
-	Scopes []string
+	Scopes []string `sql:"scopes"`
 
 	// Authentication data provided by an upstream source.
-	ConnectorID   string
-	ConnectorData []byte
-	Claims        Claims
+	ConnectorID   string `sql:"connector_id"`
+	ConnectorData []byte `sql:"connector_data"`
+	Claims        Claims `sql:"claims"`
 
-	Expiry time.Time
+	Expiry time.Time `sql:"expires_at"`
 }
 
 // RefreshToken is an OAuth2 refresh token which allows a client to request new
 // tokens on the end user's behalf.
 type RefreshToken struct {
-	ID string
+	tableName struct{} `sql:"auth_refresh_token"`
+
+	ID string `sql:"id"`
 
 	// A single token that's rotated every time the refresh token is refreshed.
 	//
 	// May be empty.
-	Token string
+	Token string `sql:"token"`
 
-	CreatedAt time.Time
-	LastUsed  time.Time
+	CreatedAt time.Time `sql:"created_at"`
+	LastUsed  time.Time `sql:"last_used_at"`
 
 	// Client this refresh token is valid for.
-	ClientID string
+	ClientID string `sql:"client_id"`
 
 	// Authentication data provided by an upstream source.
-	ConnectorID   string
-	ConnectorData []byte
-	Claims        Claims
+	ConnectorID   string `sql:"connector_id"`
+	ConnectorData []byte `sql:"connector_data"`
+	Claims        Claims `sql:"claims"`
 
 	// Scopes present in the initial request. Refresh requests may specify a set
 	// of scopes different from the initial request when refreshing a token,
 	// however those scopes must be encompassed by this set.
-	Scopes []string
+	Scopes []string `sql:"scopes"`
 
 	// Nonce value supplied during the initial redirect. This is required to be part
 	// of the claims of any future id_token generated by the client.
-	Nonce string
+	Nonce string `sql:"nonce"`
 }
 
 // RefreshTokenRef is a reference object that contains metadata about refresh tokens.
@@ -297,18 +304,20 @@ type Password struct {
 
 // Connector is an object that contains the metadata about connectors used to login to Dex.
 type Connector struct {
+	tableName struct{} `sql:"auth_connector"`
+
 	// ID that will uniquely identify the connector object.
-	ID string `json:"id"`
+	ID string `json:"id" sql:"id"`
 	// The Type of the connector. E.g. 'oidc' or 'ldap'
-	Type string `json:"type"`
+	Type string `json:"type" sql:"connector_type"`
 	// The Name of the connector that is used when displaying it to the end user.
-	Name string `json:"name"`
+	Name string `json:"name" sql:"name"`
 	// ResourceVersion is the static versioning used to keep track of dynamic configuration
 	// changes to the connector object made by the API calls.
-	ResourceVersion string `json:"resourceVersion"`
+	ResourceVersion string `json:"resourceVersion" sql:"resource_version"`
 	// Config holds all the configuration information specific to the connector type. Since there
 	// no generic struct we can use for this purpose, it is stored as a byte stream.
-	Config []byte `json:"email"`
+	Config []byte `json:"email" json:"config"`
 }
 
 // VerificationKey is a rotated signing key which can still be used to verify
