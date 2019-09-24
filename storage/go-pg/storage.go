@@ -1,4 +1,3 @@
-// +build pg
 
 package go_pg
 
@@ -18,25 +17,22 @@ func (s *GoPgStorage) Close() error {
 	return s.db.Close()
 }
 
-func (s *GoPgStorage) CreateAuthRequest(a storage.AuthRequest) error {
-	req := toAuthRequest(&a)
-	err := s.db.Insert(req)
+func (s *GoPgStorage) CreateAuthRequest(req storage.AuthRequest) error {
+	err := s.db.Insert(&req)
 	if err != nil {
 		return fmt.Errorf("insert auth request: %v", err)
 	}
 	return nil
 }
-func (s *GoPgStorage) CreateClient(c storage.Client) error {
-	authClient := toAuthClient(&c)
-	err := s.db.Insert(authClient)
+func (s *GoPgStorage) CreateClient(client storage.Client) error {
+	err := s.db.Insert(&client)
 	if err != nil {
 		return fmt.Errorf("insert client: %v", err)
 	}
 	return nil
 }
-func (s *GoPgStorage) CreateAuthCode(c storage.AuthCode) error {
-	authCode := toAuthCode(&c)
-	err := s.db.Insert(authCode)
+func (s *GoPgStorage) CreateAuthCode(authCode storage.AuthCode) error {
+	err := s.db.Insert(&authCode)
 	if err != nil {
 		return fmt.Errorf("insert auth code: %v", err)
 	}
@@ -51,9 +47,8 @@ func (s *GoPgStorage) CreateRefresh(r storage.RefreshToken) error {
 	return nil
 }
 
-func (s *GoPgStorage) CreatePassword(p storage.Password) error {
-	pwd := toAuthPassword(&p)
-	err := s.db.Insert(pwd)
+func (s *GoPgStorage) CreatePassword(pwd storage.Password) error {
+	err := s.db.Insert(&pwd)
 	if err != nil {
 		return fmt.Errorf("insert password: %v", err)
 	}
@@ -67,30 +62,29 @@ func (s *GoPgStorage) CreateOfflineSessions(os storage.OfflineSessions) error {
 	}
 	return nil
 }
-func (s *GoPgStorage) CreateConnector(c storage.Connector) error {
-	connector := toAuthConnector(&c)
-	err := s.db.Insert(connector)
+func (s *GoPgStorage) CreateConnector(connector storage.Connector) error {
+	err := s.db.Insert(&connector)
 	if err != nil {
 		return fmt.Errorf("insert connector: %v", err)
 	}
 	return nil
 }
-func (s *GoPgStorage) GetAuthRequest(id string) (req storage.AuthRequest, err error) {
+func (s *GoPgStorage) GetAuthRequest(id string) (authRequest storage.AuthRequest, err error) {
 	err = s.db.RunInTransaction(func(tx *pg.Tx) error {
-		req, err = getAuthRequest(tx, id)
+		authRequest, err = getAuthRequest(tx, id)
 		return err
 	})
 	return
 }
 
 func getAuthRequest(tx *pg.Tx, id string) (storage.AuthRequest, error) {
-	au := &UaaAuthRequest{ID: id}
-	err := tx.Select(au)
+	authRequest := storage.AuthRequest{ID: id}
+	err := tx.Select(&authRequest)
 
 	if err != nil {
 		return storage.AuthRequest{}, err
 	}
-	return toDexAuthRequest(au), nil
+	return authRequest, nil
 }
 
 func (s *GoPgStorage) GetAuthCode(id string) (ac storage.AuthCode, err error) {
@@ -102,7 +96,7 @@ func (s *GoPgStorage) GetAuthCode(id string) (ac storage.AuthCode, err error) {
 }
 
 func getAuthCode(tx *pg.Tx, id string) (storage.AuthCode, error) {
-	au := &UaaAuthCode{ID: id}
+	au := &storage.AuthCode{ID: id}
 	err := tx.Select(au)
 
 	if err != nil {
@@ -120,25 +114,13 @@ func (s *GoPgStorage) GetClient(id string) (client storage.Client, err error) {
 }
 
 func getClient(tx *pg.Tx, id string) (storage.Client, error) {
-	ac := &UaaAuthClient{ID: id}
-	err := tx.Select(ac)
+	ac := storage.Client{ID: id}
+	err := tx.Select(&ac)
 
 	if err != nil {
 		return storage.Client{}, err
 	}
-	return toDexClient(ac), nil
-}
-
-func toDexClient(client *UaaAuthClient) storage.Client {
-	return storage.Client{
-		ID:           client.ID,
-		Secret:       client.Secret,
-		RedirectURIs: client.RedirectURIs,
-		TrustedPeers: client.TrustedPeers,
-		Public:       client.Public,
-		Name:         client.Name,
-		LogoURL:      client.LogoURL,
-	}
+	return ac, nil
 }
 
 func (s *GoPgStorage) GetKeys() (keys storage.Keys, err error) {
@@ -189,36 +171,14 @@ func (s *GoPgStorage) GetRefresh(id string) (rt storage.RefreshToken, err error)
 }
 
 func getRefresh(tx *pg.Tx, id string) (storage.RefreshToken, error) {
-	rt := UaaAuthRefreshToken{ID: id}
+	rt := storage.RefreshToken{ID: id}
 	err := tx.Select(&rt)
 	if err != nil {
 		return storage.RefreshToken{}, err
 	}
-	return toDexRefreshToken(&rt), err
+	return rt, err
 }
 
-func toDexRefreshToken(rt *UaaAuthRefreshToken) storage.RefreshToken {
-	return storage.RefreshToken{
-		ID:    rt.ID,
-		Token: rt.Token,
-
-		CreatedAt:     rt.CreatedAt,
-		LastUsed:      rt.LastUsedAt,
-		ClientID:      rt.ClientID,
-		ConnectorID:   rt.ConnectorID,
-		ConnectorData: rt.ConnectorData,
-		Claims: storage.Claims{
-			UserID:        rt.ClaimUserID,
-			Username:      rt.ClaimUsername,
-			Name:          rt.ClaimName,
-			Email:         rt.ClaimEmail,
-			EmailVerified: rt.ClaimEmailVerified,
-			Groups:        rt.ClaimGroups,
-		},
-		Scopes: rt.Scopes,
-		Nonce:  rt.Nonce,
-	}
-}
 func (s *GoPgStorage) GetPassword(email string) (password storage.Password, err error) {
 	err = s.db.RunInTransaction(func(tx *pg.Tx) error {
 		password, err = getPassword(tx, email)
@@ -228,22 +188,14 @@ func (s *GoPgStorage) GetPassword(email string) (password storage.Password, err 
 }
 
 func getPassword(tx *pg.Tx, email string) (storage.Password, error) {
-	password := UaaAuthPassword{}
+	password := storage.Password{}
 	err := tx.Model(&password).Where("email = ?", email).Select()
 	if err != nil {
 		return storage.Password{}, err
 	}
-	return toDexPassword(password), nil
+	return password, nil
 }
 
-func toDexPassword(password UaaAuthPassword) storage.Password {
-	return storage.Password{
-		Email:    password.Email,
-		Hash:     password.Hash,
-		Username: password.Name,
-		UserID:   password.UserID,
-	}
-}
 func (s *GoPgStorage) GetOfflineSessions(userID string, connID string) (sessions storage.OfflineSessions, err error) {
 	err = s.db.RunInTransaction(func(tx *pg.Tx) error {
 		sessions, err = getOfflineSessions(tx, userID, connID)
@@ -253,30 +205,14 @@ func (s *GoPgStorage) GetOfflineSessions(userID string, connID string) (sessions
 }
 
 func getOfflineSessions(tx *pg.Tx, userID string, connID string) (storage.OfflineSessions, error) {
-	var offlineSessions []UaaAuthOfflineSession
+	var offlineSessions storage.OfflineSessions
 	err := tx.Model(&offlineSessions).Where("user_id = ? and connector_id = ?", userID, connID).Select()
 	if err != nil {
 		return storage.OfflineSessions{}, err
 	}
-	return toDexOfflineSessions(connID, connID, offlineSessions), nil
+	return  offlineSessions, nil
 }
 
-func toDexOfflineSessions(userID string, connID string, sessions []UaaAuthOfflineSession) storage.OfflineSessions {
-	os := storage.OfflineSessions{
-		UserID: userID,
-		ConnID: connID,
-	}
-	os.Refresh = map[string]*storage.RefreshTokenRef{}
-	for _, session := range sessions {
-		os.Refresh[session.ClientID] = &storage.RefreshTokenRef{
-			ID:        session.Token,
-			ClientID:  session.ClientID,
-			CreatedAt: session.CreatedAt,
-			LastUsed:  session.LastUsedAt,
-		}
-	}
-	return os
-}
 func (s *GoPgStorage) GetConnector(id string) (connector storage.Connector, err error) {
 	err = s.db.RunInTransaction(func(tx *pg.Tx) error {
 		connector, err = getConnector(tx, id)
@@ -286,101 +222,73 @@ func (s *GoPgStorage) GetConnector(id string) (connector storage.Connector, err 
 }
 
 func getConnector(tx *pg.Tx, id string) (storage.Connector, error) {
-	authConn := UaaAuthConnector{ID: id}
+	authConn := storage.Connector{ID: id}
 	err := tx.Select(&authConn)
 
 	if err != nil {
 		return storage.Connector{}, err
 	}
-	return toDexConnector(authConn), nil
+	return authConn, nil
 }
 
-func toDexConnector(connector UaaAuthConnector) storage.Connector {
-	return storage.Connector{
-		ID:              connector.ID,
-		Type:            connector.Type,
-		Name:            connector.Name,
-		ResourceVersion: connector.ResourceVersion,
-		Config:          connector.Config,
-	}
-}
 
 func (s *GoPgStorage) ListClients() ([]storage.Client, error) {
-	var authClients []UaaAuthClient
+	var authClients []storage.Client
 	err := s.db.Select(authClients)
-	return toDexClients(authClients), err
-}
-
-func toDexClients(authClients []UaaAuthClient) []storage.Client {
-	clients := make([]storage.Client, len(authClients))
-	for idx, authClient := range authClients {
-		clients[idx] = toDexClient(&authClient)
-	}
-	return clients
+	return authClients, err
 }
 
 func (s *GoPgStorage) ListRefreshTokens() ([]storage.RefreshToken, error) {
-	var authRefreshTokens []UaaAuthRefreshToken
+	var authRefreshTokens []storage.RefreshToken
 
 	err := s.db.Select(authRefreshTokens)
 	if err != nil {
 		return nil, err
 	}
-	refreshTokens := make([]storage.RefreshToken, len(authRefreshTokens))
-	for idx, t := range authRefreshTokens {
-		refreshTokens[idx] = toDexRefreshToken(&t)
-	}
-	return refreshTokens, nil
+
+	return authRefreshTokens, nil
 }
 
 func (s *GoPgStorage) ListPasswords() ([]storage.Password, error) {
-	var authPasswords []UaaAuthPassword
-	err := s.db.Select(authPasswords)
-
+	var passwords []storage.Password
+	err := s.db.Select(passwords)
 	if err != nil {
 		return nil, err
-	}
-	passwords := make([]storage.Password, len(authPasswords))
-	for idx, t := range authPasswords {
-		passwords[idx] = toDexPassword(t)
 	}
 	return passwords, nil
 }
 
 func (s *GoPgStorage) ListConnectors() ([]storage.Connector, error) {
-	var authConnectors []UaaAuthConnector
+	var authConnectors []storage.Connector
 
 	err := s.db.Select(authConnectors)
 
 	if err != nil {
 		return nil, err
 	}
-	connectors := make([]storage.Connector, len(authConnectors))
-	for idx, t := range authConnectors {
-		connectors[idx] = toDexConnector(t)
-	}
-	return connectors, nil
+	return authConnectors, nil
 }
 func (s *GoPgStorage) DeleteAuthRequest(id string) error {
-	return s.db.Delete(&UaaAuthRequest{ID: id})
+	return s.db.Delete(&storage.AuthRequest{ID: id})
 }
 func (s *GoPgStorage) DeleteAuthCode(code string) error {
-	return s.db.Delete(&UaaAuthCode{ID: code})
+	return s.db.Delete(&storage.AuthCode{ID: code})
 }
 func (s *GoPgStorage) DeleteClient(id string) error {
-	return s.db.Delete(&UaaAuthClient{ID: id})
+	return s.db.Delete(&storage.Client{ID: id})
 }
 func (s *GoPgStorage) DeleteRefresh(id string) error {
 	return s.db.Delete(&UaaAuthRefreshToken{ID: id})
 }
 func (s *GoPgStorage) DeletePassword(email string) error {
-	return s.db.Delete(&UaaAuthPassword{Email: email})
+	return s.db.Delete(&storage.Password{Email: email})
 }
 func (s *GoPgStorage) DeleteOfflineSessions(userID string, connID string) error {
-	return s.db.Delete(&UaaAuthOfflineSession{UserID: userID, ConnectorID: connID})
+	err := s.db.Delete(&storage.OfflineSessions{UserID:userID,ConnID:connID})
+	return err
 }
 func (s *GoPgStorage) DeleteConnector(id string) error {
-	return s.db.Delete(&UaaAuthConnector{ID: id})
+	return s.db.Delete(&storage.Connector{ID: id})
 }
 func (s *GoPgStorage) UpdateClient(id string, updater func(old storage.Client) (storage.Client, error)) error {
 	return s.db.RunInTransaction(func(tx *pg.Tx) error {
@@ -392,7 +300,7 @@ func (s *GoPgStorage) UpdateClient(id string, updater func(old storage.Client) (
 		if err != nil {
 			return err
 		}
-		err = tx.Update(client)
+		err = tx.Update(&client)
 		return err
 	})
 }
@@ -446,7 +354,7 @@ func (s *GoPgStorage) UpdateAuthRequest(id string, updater func(a storage.AuthRe
 		if err != nil {
 			return err
 		}
-		return tx.Update(toAuthRequest(&ar))
+		return tx.Update(&ar)
 	})
 
 }
@@ -460,7 +368,7 @@ func (s *GoPgStorage) UpdateRefreshToken(id string, updater func(r storage.Refre
 		if err != nil {
 			return err
 		}
-		err = tx.Update(toAuthRefreshToken(&refresh))
+		err = tx.Update(&refresh)
 		return err
 	})
 }
@@ -502,21 +410,20 @@ func (s *GoPgStorage) UpdateConnector(id string, updater func(c storage.Connecto
 		if err != nil {
 			return err
 		}
-		conn := toAuthConnector(&connector)
-		err = tx.Update(&conn)
+		err = tx.Update(&connector)
 		return err
 	})
 }
 func (s *GoPgStorage) GarbageCollect(now time.Time) (result storage.GCResult, err error) {
 
 	err = s.db.RunInTransaction(func(tx *pg.Tx) error {
-		r, err := tx.Model(&UaaAuthRequest{}).Where("expiry < ?", now).Delete()
+		r, err := tx.Model(&storage.AuthRequest{}).Where("expires_at < ?", now).Delete()
 		if err != nil {
 			return fmt.Errorf("gc auth_request: %v", err)
 		}
 		result.AuthRequests = int64(r.RowsAffected())
 
-		r, err = tx.Model(&UaaAuthCode{}).Where("expiry < ?", now).Delete()
+		r, err = tx.Model(&storage.AuthCode{}).Where("expires_at < ?", now).Delete()
 		if err != nil {
 			return fmt.Errorf("gc auth_code: %v", err)
 		}

@@ -171,7 +171,7 @@ type AuthRequest struct {
 	// attempts.
 	ForceApprovalPrompt bool `sql:"force_approval_prompt"`
 
-	Expiry time.Time `sql:"expiry"`
+	Expiry time.Time `sql:"expires_at"`
 
 	// Has the user proved their identity through a backing identity provider?
 	//
@@ -270,15 +270,17 @@ type RefreshTokenRef struct {
 
 // OfflineSessions objects are sessions pertaining to users with refresh tokens.
 type OfflineSessions struct {
+	tableName struct{} `sql:"auth_offline_session"`
+
 	// UserID of an end user who has logged in to the server.
-	UserID string
+	UserID string `sql:"user_id,pk"`
 
 	// The ID of the connector used to login the user.
-	ConnID string
+	ConnID string  `sql:"connector_id,pk"`
 
 	// Refresh is a hash table of refresh token reference objects
 	// indexed by the ClientID of the refresh token.
-	Refresh map[string]*RefreshTokenRef
+	Refresh map[string]*RefreshTokenRef  `sql:"refresh_tokens"`
 }
 
 // Password is an email to password mapping managed by the storage.
@@ -290,7 +292,7 @@ type Password struct {
 	//
 	// Storages that don't support an extended character set for IDs, such as '.' and '@'
 	// (cough cough, kubernetes), must map this value appropriately.
-	Email string `json:"email"`
+	Email string `json:"email,pk"`
 
 	// Bcrypt encoded hash of the password. This package enforces a min cost value of 10
 	Hash []byte `json:"hash"`
