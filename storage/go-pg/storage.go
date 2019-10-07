@@ -38,9 +38,8 @@ func (s *GoPgStorage) CreateAuthCode(authCode storage.AuthCode) error {
 	}
 	return nil
 }
-func (s *GoPgStorage) CreateRefresh(r storage.RefreshToken) error {
-	rt := toAuthRefreshToken(&r)
-	err := s.db.Insert(rt)
+func (s *GoPgStorage) CreateRefresh(rt storage.RefreshToken) error {
+	err := s.db.Insert(&rt)
 	if err != nil {
 		return fmt.Errorf("insert refresh token: %v", err)
 	}
@@ -96,13 +95,13 @@ func (s *GoPgStorage) GetAuthCode(id string) (ac storage.AuthCode, err error) {
 }
 
 func getAuthCode(tx *pg.Tx, id string) (storage.AuthCode, error) {
-	au := &storage.AuthCode{ID: id}
-	err := tx.Select(au)
+	au := storage.AuthCode{ID: id}
+	err := tx.Select(&au)
 
 	if err != nil {
 		return storage.AuthCode{}, err
 	}
-	return toDexAuthCode(au), nil
+	return au, nil
 }
 
 func (s *GoPgStorage) GetClient(id string) (client storage.Client, err error) {
@@ -382,7 +381,7 @@ func (s *GoPgStorage) UpdatePassword(email string, updater func(p storage.Passwo
 		if err != nil {
 			return err
 		}
-		err = tx.Update(toAuthPassword(&password))
+		err = tx.Update(&password)
 		return err
 	})
 }
