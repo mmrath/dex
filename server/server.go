@@ -40,6 +40,18 @@ import (
 // connector maintained by the server.
 const LocalConnector = "local"
 
+const (
+	// recCost is the recommended bcrypt cost, which balances hash strength and
+	// efficiency.
+	recCost = 12
+
+	// upBoundCost is a sane upper bound on bcrypt cost determined by benchmarking:
+	// high enough to ensure secure encryption, low enough to not put unnecessary
+	// load on a dex server.
+	upBoundCost = 16
+)
+
+
 // Connector is a connector with resource version metadata.
 type Connector struct {
 	ResourceVersion string
@@ -538,4 +550,20 @@ func (s *Server) getConnector(id string) (Connector, error) {
 	}
 
 	return conn, nil
+}
+
+// checkCost returns an error if the hash provided does not meet lower or upper
+// bound cost requirements.
+func checkCost(hash []byte) error {
+	actual, err := bcrypt.Cost(hash)
+	if err != nil {
+		return fmt.Errorf("parsing bcrypt hash: %v", err)
+	}
+	if actual < bcrypt.DefaultCost {
+		return fmt.Errorf("given hash cost = %d does not meet minimum cost requirement = %d", actual, bcrypt.DefaultCost)
+	}
+	if actual > upBoundCost {
+		return fmt.Errorf("given hash cost = %d is above upper bound cost = %d, recommended cost = %d", actual, upBoundCost, recCost)
+	}
+	return nil
 }

@@ -18,7 +18,7 @@ export GOBIN=$(PWD)/bin
 
 LD_FLAGS="-w -X $(REPO_PATH)/version.Version=$(VERSION)"
 
-build: bin/dex bin/example-app bin/grpc-client
+build: bin/dex bin/example-app
 
 bin/dex:
 	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/dex
@@ -26,8 +26,6 @@ bin/dex:
 bin/example-app:
 	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/example-app
 
-bin/grpc-client:
-	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/examples/grpc-client
 
 .PHONY: release-binary
 release-binary:
@@ -58,20 +56,6 @@ lint: bin/golint
 docker-image:
 	@sudo docker build -t $(DOCKER_IMAGE) .
 
-.PHONY: proto
-proto: bin/protoc bin/protoc-gen-go
-	@./bin/protoc --go_out=plugins=grpc:. --plugin=protoc-gen-go=./bin/protoc-gen-go api/*.proto
-	@./bin/protoc --go_out=. --plugin=protoc-gen-go=./bin/protoc-gen-go server/internal/*.proto
-
-.PHONY: verify-proto
-verify-proto: proto
-	@./scripts/git-diff
-
-bin/protoc: scripts/get-protoc
-	@./scripts/get-protoc bin/protoc
-
-bin/protoc-gen-go:
-	@go install -v $(REPO_PATH)/vendor/github.com/golang/protobuf/protoc-gen-go
 
 bin/golint:
 	@go install -v $(THIS_DIRECTORY)/vendor/golang.org/x/lint/golint

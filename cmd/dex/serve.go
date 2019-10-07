@@ -7,12 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/dexidp/dex/pkg/log"
+	"github.com/dexidp/dex/server"
+	"github.com/dexidp/dex/storage"
 	"github.com/ghodss/yaml"
 	grpcprometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus"
@@ -21,12 +23,6 @@ import (
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/reflection"
-
-	"github.com/dexidp/dex/api"
-	"github.com/dexidp/dex/pkg/log"
-	"github.com/dexidp/dex/server"
-	"github.com/dexidp/dex/storage"
 )
 
 func commandServe() *cobra.Command {
@@ -286,27 +282,6 @@ func serve(cmd *cobra.Command, args []string) error {
 			errc <- fmt.Errorf("listening on %s failed: %v", c.Web.HTTPS, err)
 		}()
 	}
-	if c.GRPC.Addr != "" {
-		logger.Infof("listening (grpc) on %s", c.GRPC.Addr)
-		go func() {
-			errc <- func() error {
-				list, err := net.Listen("tcp", c.GRPC.Addr)
-				if err != nil {
-					return fmt.Errorf("listening on %s failed: %v", c.GRPC.Addr, err)
-				}
-				s := grpc.NewServer(grpcOptions...)
-				api.RegisterDexServer(s, server.NewAPI(serverConfig.Storage, logger))
-				grpcMetrics.InitializeMetrics(s)
-				if c.GRPC.Reflection {
-					logger.Info("enabling reflection in grpc service")
-					reflection.Register(s)
-				}
-				err = s.Serve(list)
-				return fmt.Errorf("listening on %s failed: %v", c.GRPC.Addr, err)
-			}()
-		}()
-	}
-
 	return <-errc
 }
 
