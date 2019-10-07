@@ -8,7 +8,6 @@ import (
 
 	// import third party drivers
 	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/dexidp/dex/pkg/log"
 )
@@ -67,21 +66,6 @@ var (
 		},
 
 		supportsTimezones: true,
-	}
-
-	flavorSQLite3 = flavor{
-		queryReplacers: []replacer{
-			{bindRegexp, "?"},
-			// Translate for booleans to integers.
-			{matchLiteral("true"), "1"},
-			{matchLiteral("false"), "0"},
-			{matchLiteral("boolean"), "integer"},
-			// Translate other types.
-			{matchLiteral("bytea"), "blob"},
-			{matchLiteral("timestamptz"), "timestamp"},
-			// SQLite doesn't have a "now()" method, replace with "date('now')"
-			{regexp.MustCompile(`\bnow\(\)`), "date('now')"},
-		},
 	}
 
 	flavorMySQL = flavor{

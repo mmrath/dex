@@ -2,15 +2,13 @@ package sql
 
 import (
 	"database/sql"
+	"os"
 	"reflect"
 	"testing"
 )
 
 func TestDecoder(t *testing.T) {
-	db, err := sql.Open("sqlite3", ":memory:")
-	if err != nil {
-		t.Fatal(err)
-	}
+	db := getDB(t)
 	defer db.Close()
 
 	if _, err := db.Exec(`create table foo ( id integer primary key, bar blob );`); err != nil {
@@ -30,10 +28,7 @@ func TestDecoder(t *testing.T) {
 }
 
 func TestEncoder(t *testing.T) {
-	db, err := sql.Open("sqlite3", ":memory:")
-	if err != nil {
-		t.Fatal(err)
-	}
+	db := getDB(t)
 	defer db.Close()
 
 	if _, err := db.Exec(`create table foo ( id integer primary key, bar blob );`); err != nil {
@@ -52,4 +47,28 @@ func TestEncoder(t *testing.T) {
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("wanted %q got %q", want, got)
 	}
+}
+
+func getDB(t *testing.T)  *sql.DB{
+	host := os.Getenv(testPostgresEnv)
+	if host == "" {
+		t.Skipf("test environment variable %q not set, skipping", testPostgresEnv)
+	}
+	baseCfg := &Postgres{
+		NetworkDB: NetworkDB{
+			Database: getenv("DEX_POSTGRES_DATABASE", "postgres"),
+			User:     getenv("DEX_POSTGRES_USER", "postgres"),
+			Password: getenv("DEX_POSTGRES_PASSWORD", "postgres"),
+			Host:     host,
+		},
+		SSL: SSL{
+			Mode: pgSSLDisable, // Postgres container doesn't support SSL.
+		}}
+	dataSourceName := baseCfg.createDataSourceName()
+
+	db, err := sql.Open("postgres", dataSourceName)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return db
 }

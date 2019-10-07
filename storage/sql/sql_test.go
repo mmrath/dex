@@ -11,39 +11,39 @@ func TestTranslate(t *testing.T) {
 	}{
 		{
 			"sqlite3 query bind replacement",
-			flavorSQLite3,
+			flavorMySQL,
 			`select foo from bar where foo.zam = $1;`,
 			`select foo from bar where foo.zam = ?;`,
 		},
 		{
 			"sqlite3 query bind replacement at newline",
-			flavorSQLite3,
+			flavorMySQL,
 			`select foo from bar where foo.zam = $1`,
 			`select foo from bar where foo.zam = ?`,
 		},
 		{
 			"sqlite3 query true",
-			flavorSQLite3,
+			flavorMySQL,
 			`select foo from bar where foo.zam = true`,
-			`select foo from bar where foo.zam = 1`,
+			`select foo from bar where foo.zam = true`,
 		},
 		{
 			"sqlite3 query false",
-			flavorSQLite3,
+			flavorMySQL,
 			`select foo from bar where foo.zam = false`,
-			`select foo from bar where foo.zam = 0`,
+			`select foo from bar where foo.zam = false`,
 		},
 		{
 			"sqlite3 bytea",
-			flavorSQLite3,
+			flavorMySQL,
 			`"connector_data" bytea not null,`,
 			`"connector_data" blob not null,`,
 		},
 		{
 			"sqlite3 now",
-			flavorSQLite3,
+			flavorMySQL,
 			`now(),`,
-			`date('now'),`,
+			`now(),`,
 		},
 	}
 

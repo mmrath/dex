@@ -2,18 +2,38 @@ package sql
 
 import (
 	"database/sql"
+	"github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 	"os"
 	"testing"
-
-	sqlite3 "github.com/mattn/go-sqlite3"
-	"github.com/sirupsen/logrus"
 )
 
 func TestMigrate(t *testing.T) {
-	db, err := sql.Open("sqlite3", ":memory:")
+
+	host := os.Getenv(testPostgresEnv)
+	if host == "" {
+		t.Skipf("test environment variable %q not set, skipping", testPostgresEnv)
+	}
+	baseCfg := &Postgres{
+		NetworkDB: NetworkDB{
+			Database: getenv("DEX_POSTGRES_DATABASE", "postgres"),
+			User:     getenv("DEX_POSTGRES_USER", "postgres"),
+			Password: getenv("DEX_POSTGRES_PASSWORD", "postgres"),
+			Host:     host,
+		},
+		SSL: SSL{
+			Mode: pgSSLDisable, // Postgres container doesn't support SSL.
+		}}
+
+
+
+	dataSourceName := baseCfg.createDataSourceName()
+
+	db, err := sql.Open("postgres", dataSourceName)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer db.Close()
 
 	logger := &logrus.Logger{
@@ -23,14 +43,14 @@ func TestMigrate(t *testing.T) {
 	}
 
 	errCheck := func(err error) bool {
-		sqlErr, ok := err.(sqlite3.Error)
+		sqlErr, ok := err.(pq.Error)
 		if !ok {
 			return false
 		}
-		return sqlErr.ExtendedCode == sqlite3.ErrConstraintUnique
+		return sqlErr.Code != ""
 	}
 
-	c := &conn{db, flavorSQLite3, logger, errCheck}
+	c := &conn{db, flavorPostgres, logger, errCheck}
 	for _, want := range []int{len(migrations), 0} {
 		got, err := c.migrate()
 		if err != nil {

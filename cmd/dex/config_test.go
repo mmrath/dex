@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/dexidp/dex/server"
+	"github.com/dexidp/dex/storage/memory"
 	"testing"
 
 	"github.com/ghodss/yaml"
@@ -20,8 +21,7 @@ func TestValidConfiguration(t *testing.T) {
 		Issuer: "http://127.0.0.1:5556/dex",
 		Storage: Storage{
 			Type: "sqlite3",
-			Config: &sql.SQLite3{
-				File: "examples/dex.db",
+			Config: &memory.Config{
 			},
 		},
 		Web: Web{
