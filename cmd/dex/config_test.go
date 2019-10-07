@@ -1,17 +1,17 @@
 package main
 
 import (
-	"github.com/dexidp/dex/server"
-	"github.com/dexidp/dex/storage/memory"
+	"github.com/mmrath/dex/server"
+	"github.com/mmrath/dex/storage/memory"
 	"testing"
 
 	"github.com/ghodss/yaml"
 	"github.com/kylelemons/godebug/pretty"
 
-	"github.com/dexidp/dex/connector/mock"
-	"github.com/dexidp/dex/connector/oidc"
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/sql"
+	"github.com/mmrath/dex/connector/mock"
+	"github.com/mmrath/dex/connector/oidc"
+	"github.com/mmrath/dex/storage"
+	"github.com/mmrath/dex/storage/sql"
 )
 
 var _ = yaml.YAMLToJSON

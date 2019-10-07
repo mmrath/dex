@@ -14,13 +14,13 @@ import (
 	"sync"
 	"time"
 
-	oidc "github.com/coreos/go-oidc"
+	"github.com/coreos/go-oidc"
 	"github.com/gorilla/mux"
-	jose "gopkg.in/square/go-jose.v2"
+	"gopkg.in/square/go-jose.v2"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/server/internal"
-	"github.com/dexidp/dex/storage"
+	"github.com/mmrath/dex/connector"
+	"github.com/mmrath/dex/server/internal"
+	"github.com/mmrath/dex/storage"
 )
 
 // newHealthChecker returns the healthz handler. The handler runs until the
@@ -222,7 +222,7 @@ func (s *Server) handleAuthorization(w http.ResponseWriter, r *http.Request) {
 	// so users don't hit "not found" database errors if they wait at the login
 	// screen too long.
 	//
-	// See: https://github.com/dexidp/dex/issues/646
+	// See: https://github.com/mmrath/dex/issues/646
 	authReq.Expiry = s.now().Add(s.authRequestsValidFor)
 	if err := s.storage.CreateAuthRequest(*authReq); err != nil {
 		s.logger.Errorf("Failed to create authorization request: %v", err)

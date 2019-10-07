@@ -9,11 +9,11 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/dexidp/dex/pkg/log"
-	"github.com/dexidp/dex/server"
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/memory"
-	"github.com/dexidp/dex/storage/sql"
+	"github.com/mmrath/dex/pkg/log"
+	"github.com/mmrath/dex/server"
+	"github.com/mmrath/dex/storage"
+	"github.com/mmrath/dex/storage/memory"
+	"github.com/mmrath/dex/storage/sql"
 )
 
 // Config is the config format for the main application.

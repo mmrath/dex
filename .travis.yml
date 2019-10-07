@@ -25,7 +25,7 @@ env:
     - DEX_KEYSTONE_ADMIN_USER=demo
     - DEX_KEYSTONE_ADMIN_PASS=DEMO_PASS
 
-go_import_path: github.com/dexidp/dex
+go_import_path: github.com/mmrath/dex
 
 services:
   - mysql

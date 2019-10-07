@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	jose "gopkg.in/square/go-jose.v2"
+	"gopkg.in/square/go-jose.v2"
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/dexidp/dex/storage"
+	"github.com/mmrath/dex/storage"
 
 	"github.com/kylelemons/godebug/pretty"
 )

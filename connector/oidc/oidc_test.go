@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dexidp/dex/connector"
+	"github.com/mmrath/dex/connector"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/square/go-jose.v2"
 )

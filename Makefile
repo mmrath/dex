@@ -1,12 +1,12 @@
 PROJ=dex
-ORG_PATH=github.com/dexidp
+ORG_PATH=github.com/mmrath
 REPO_PATH=$(ORG_PATH)/$(PROJ)
 export PATH := $(PWD)/bin:$(PATH)
 THIS_DIRECTORY:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 VERSION ?= $(shell ./scripts/git-version)
 
-DOCKER_REPO=quay.io/dexidp/dex
+DOCKER_REPO=quay.io/mmrath/dex
 DOCKER_IMAGE=$(DOCKER_REPO):$(VERSION)
 
 $( shell mkdir -p bin )

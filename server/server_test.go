@@ -19,18 +19,18 @@ import (
 	"testing"
 	"time"
 
-	oidc "github.com/coreos/go-oidc"
+	"github.com/coreos/go-oidc"
 	"github.com/kylelemons/godebug/pretty"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
-	jose "gopkg.in/square/go-jose.v2"
+	"gopkg.in/square/go-jose.v2"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/connector/mock"
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/memory"
+	"github.com/mmrath/dex/connector"
+	"github.com/mmrath/dex/connector/mock"
+	"github.com/mmrath/dex/storage"
+	"github.com/mmrath/dex/storage/memory"
 )
 
 func mustLoad(s string) *rsa.PrivateKey {

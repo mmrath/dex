@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dexidp/dex/pkg/log"
-	"github.com/dexidp/dex/storage"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
+	"github.com/mmrath/dex/pkg/log"
+	"github.com/mmrath/dex/storage"
 )
 
 const (

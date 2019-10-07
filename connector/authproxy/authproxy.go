@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/pkg/log"
+	"github.com/mmrath/dex/connector"
+	"github.com/mmrath/dex/pkg/log"
 )
 
 // Config holds the configuration parameters for a connector which returns an

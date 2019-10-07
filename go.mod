@@ -1,4 +1,4 @@
-module github.com/dexidp/dex
+module github.com/mmrath/dex
 
 require (
 	github.com/beevik/etree v1.1.0
