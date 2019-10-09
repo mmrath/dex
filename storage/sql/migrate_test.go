@@ -25,8 +25,6 @@ func TestMigrate(t *testing.T) {
 			Mode: pgSSLDisable, // Postgres container doesn't support SSL.
 		}}
 
-
-
 	dataSourceName := baseCfg.createDataSourceName()
 
 	db, err := sql.Open("postgres", dataSourceName)
