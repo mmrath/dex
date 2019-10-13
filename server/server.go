@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -16,9 +15,12 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/felixge/httpsnoop"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
+
 	"github.com/mmrath/dex/connector"
 	"github.com/mmrath/dex/connector/authproxy"
 	"github.com/mmrath/dex/connector/bitbucketcloud"
@@ -33,7 +35,6 @@ import (
 	"github.com/mmrath/dex/connector/saml"
 	"github.com/mmrath/dex/pkg/log"
 	"github.com/mmrath/dex/storage"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 // LocalConnector is the local passwordDB connector which is an internal
@@ -50,7 +51,6 @@ const (
 	// load on a dex server.
 	upBoundCost = 16
 )
-
 
 // Connector is a connector with resource version metadata.
 type Connector struct {
@@ -256,47 +256,25 @@ func newServer(ctx context.Context, c Config, rotationStrategy rotationStrategy)
 		return nil, fmt.Errorf("server: Failed to register Prometheus HTTP metrics: %v", err)
 	}
 
-	instrumentHandlerCounter := func(handlerName string, handler http.Handler) http.HandlerFunc {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			m := httpsnoop.CaptureMetrics(handler, w, r)
-			requestCounter.With(prometheus.Labels{"handler": handlerName, "code": strconv.Itoa(m.Code), "method": r.Method}).Inc()
-		})
-	}
+	r := chi.NewRouter()
 
-	r := mux.NewRouter()
-	handle := func(p string, h http.Handler) {
-		r.Handle(path.Join(issuerURL.Path, p), instrumentHandlerCounter(p, h))
-	}
-	handleFunc := func(p string, h http.HandlerFunc) {
-		handle(p, h)
-	}
-	handlePrefix := func(p string, h http.Handler) {
-		prefix := path.Join(issuerURL.Path, p)
-		r.PathPrefix(prefix).Handler(http.StripPrefix(prefix, h))
-	}
-	handleWithCORS := func(p string, h http.HandlerFunc) {
-		var handler http.Handler = h
-		if len(c.AllowedOrigins) > 0 {
-			corsOption := handlers.AllowedOrigins(c.AllowedOrigins)
-			handler = handlers.CORS(corsOption)(handler)
-		}
-		r.Handle(path.Join(issuerURL.Path, p), instrumentHandlerCounter(p, handler))
-	}
-	r.NotFoundHandler = http.HandlerFunc(http.NotFound)
+	// A good base middleware stack
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
+	// Set a timeout value on the request context (ctx), that will signal
+	// through ctx.Done() that the request has timed out and further
+	// processing should be stopped.
+	r.Use(middleware.Timeout(60 * time.Second))
 
 	discoveryHandler, err := s.discoveryHandler()
 	if err != nil {
 		return nil, err
 	}
-	handleWithCORS("/.well-known/openid-configuration", discoveryHandler)
 
-	// TODO(ericchiang): rate limit certain paths based on IP.
-	handleWithCORS("/token", s.handleToken)
-	handleWithCORS("/keys", s.handlePublicKeys)
-	handleWithCORS("/userinfo", s.handleUserInfo)
-	handleFunc("/auth", s.handleAuthorization)
-	handleFunc("/auth/{connector}", s.handleConnectorLogin)
-	r.HandleFunc(path.Join(issuerURL.Path, "/callback"), func(w http.ResponseWriter, r *http.Request) {
+	connCallbackHandler := func(w http.ResponseWriter, r *http.Request) {
 		// Strip the X-Remote-* headers to prevent security issues on
 		// misconfigured authproxy connector setups.
 		for key := range r.Header {
@@ -305,14 +283,55 @@ func newServer(ctx context.Context, c Config, rotationStrategy rotationStrategy)
 			}
 		}
 		s.handleConnectorCallback(w, r)
+	}
+
+	contextPath := issuerURL.Path
+	if issuerURL.Path == "" {
+		contextPath = "/"
+	}
+
+	r.Route(contextPath, func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			// Basic CORS
+			// for more ideas, see: https://developer.github.com/v3/#cross-origin-resource-sharing
+			allowedOrigins := []string{"*"}
+			if len(c.AllowedOrigins) > 0 {
+				allowedOrigins = c.AllowedOrigins
+			}
+
+			cors := cors.New(cors.Options{
+				// AllowedOrigins: []string{"https://foo.com"}, // Use this to allow specific origin hosts
+				AllowedOrigins: allowedOrigins,
+				// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+				AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+				AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+				ExposedHeaders:   []string{"Link"},
+				AllowCredentials: true,
+				MaxAge:           300, // Maximum value not ignored by any of major browsers
+			})
+			r.Use(cors.Handler)
+
+			r.Handle("/.well-known/openid-configuration", discoveryHandler)
+			r.HandleFunc("/token", s.handleToken)
+			r.HandleFunc("/keys", s.handlePublicKeys)
+			r.HandleFunc("/userinfo", s.handleUserInfo)
+		})
+		r.Route("/auth", func(r chi.Router) {
+			r.HandleFunc("/", s.handleAuthorization)
+			r.HandleFunc("/{connector}", s.handleConnectorLogin)
+		})
+		r.Route("/callback", func(r chi.Router) {
+			r.HandleFunc("/", connCallbackHandler)
+			r.HandleFunc("/{connector}", s.handleConnectorCallback)
+		})
+
+		r.HandleFunc("/approval", s.handleApproval)
+		r.Handle("/healthz", s.newHealthChecker(ctx))
+		r.Handle("/static", http.StripPrefix(path.Join(issuerURL.Path, "/static"), static))
+		r.Handle("/theme", http.StripPrefix(path.Join(issuerURL.Path, "/theme"), theme))
 	})
-	// For easier connector-specific web server configuration, e.g. for the
-	// "authproxy" connector.
-	handleFunc("/callback/{connector}", s.handleConnectorCallback)
-	handleFunc("/approval", s.handleApproval)
-	handle("/healthz", s.newHealthChecker(ctx))
-	handlePrefix("/static", static)
-	handlePrefix("/theme", theme)
+	r.NotFound(http.NotFound)
+
 	s.mux = r
 
 	s.startKeyRotation(ctx, rotationStrategy, now)

@@ -3,12 +3,11 @@ module github.com/mmrath/dex
 require (
 	github.com/beevik/etree v1.1.0
 	github.com/coreos/go-oidc v2.0.0+incompatible
-	github.com/felixge/httpsnoop v1.0.0
 	github.com/ghodss/yaml v1.0.0
+	github.com/go-chi/chi v4.0.2+incompatible
+	github.com/go-chi/cors v1.0.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.3.2
-	github.com/gorilla/handlers v1.4.2
-	github.com/gorilla/mux v1.7.3
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect

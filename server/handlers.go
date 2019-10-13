@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-oidc"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi"
 	"gopkg.in/square/go-jose.v2"
 
 	"github.com/mmrath/dex/connector"
@@ -277,7 +277,8 @@ func (s *Server) handleAuthorization(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleConnectorLogin(w http.ResponseWriter, r *http.Request) {
-	connID := mux.Vars(r)["connector"]
+	connID := chi.URLParam(r, "connector")
+
 	conn, err := s.getConnector(connID)
 	if err != nil {
 		s.logger.Errorf("Failed to create authorization request: %v", err)
@@ -425,7 +426,7 @@ func (s *Server) handleConnectorCallback(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if connID := mux.Vars(r)["connector"]; connID != "" && connID != authReq.ConnectorID {
+	if connID := chi.URLParam(r, "connector"); connID != "" && connID != authReq.ConnectorID {
 		s.logger.Errorf("Connector mismatch: authentication started with id %q, but callback for id %q was triggered", authReq.ConnectorID, connID)
 		s.renderError(r, w, http.StatusInternalServerError, "Requested resource does not exist.")
 		return
